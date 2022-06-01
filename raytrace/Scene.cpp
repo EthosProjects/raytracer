@@ -1,6 +1,26 @@
 #pragma once
 #include "./Scene.hpp"
+#include "Materials/SimpleMaterial.hpp"
 qbRT::Scene::Scene() {
+    //Create some materials
+    //TODO: Created pointer without freeing it
+    //TODO: Create constructors to avoid this hellscape
+    auto testMaterial = new SimpleMaterial();
+    testMaterial->color = Vector3 { 0.25, 0.5, 0.8 };
+    testMaterial->reflectivity = 0.75;
+    testMaterial->shininess = 10.0;
+    auto testMaterial2 = new SimpleMaterial();
+    testMaterial2->color = Vector3 { 1.0, 0.5, 0.0 };
+    testMaterial2->reflectivity = 0.5;
+    testMaterial2->shininess = 10.0;
+    auto testMaterial3 = new SimpleMaterial();
+    testMaterial3->color = Vector3 { 1.0, 0.8, 0.0 };
+    testMaterial3->reflectivity = 0.25;
+    testMaterial3->shininess = 10.0;
+    auto testMaterial4 = new SimpleMaterial();
+    testMaterial4->color = Vector3 { 0.5, 0.5, 0.5 };
+    testMaterial4->reflectivity = 0.5;
+    testMaterial4->shininess = 0.0;
 	// Configure the camera.
 	camera.setPositionVector  (Vector3{0.0, -10.0, -1.0});
 	camera.setLookAtVector     (Vector3{0.0, 0.0, 0.0});
@@ -27,17 +47,17 @@ qbRT::Scene::Scene() {
     testTransform1.setTransform(
         Vector3 { -1.5, 0.0, 0.0},
         Vector3 { 0.0, 0.0, 0.0},
-        Vector3 { 0.5, 0.5, 0.75 }
+        Vector3 { 0.5, 0.5, 0.5 }
     );
     testTransform2.setTransform(
         Vector3 { 0.0, 0.0, 0.0 },
         Vector3 { 0.0, 0.0, 0.0 },
-        Vector3 { 0.75, 0.5, 0.5 }
+        Vector3 { 0.5, 0.5, 0.5 }
     );
     testTransform3.setTransform(
         Vector3 { 1.5, 0.0, 0.0},
         Vector3 { 0.0, 0.0, 0.0},
-        Vector3 { 0.75, 0.75, 0.75 }
+        Vector3 { 0.5, 0.5, 0.5 }
     );
     objectList.at(0)->setTransformMatrix(testTransform1);
     objectList.at(1)->setTransformMatrix(testTransform2);
@@ -46,6 +66,11 @@ qbRT::Scene::Scene() {
     objectList.at(0)->baseColor = Vector3 { 0.25, 0.5, 0.8 };
     objectList.at(1)->baseColor = Vector3 { 1.0, 0.5, 0.0 };
     objectList.at(2)->baseColor = Vector3 { 1.0, 0.8, 0.0 };
+    //Assign materials
+    objectList.at(0)->setMaterial(testMaterial);
+    objectList.at(1)->setMaterial(testMaterial2);
+    objectList.at(2)->setMaterial(testMaterial3);
+    objectList.at(3)->setMaterial(testMaterial4);
     // Make test light
     lightList.push_back(new PointLight());
     lightList.at(0)->positionVector = Vector3(5.0, -10.0, -5.0);
@@ -58,22 +83,19 @@ qbRT::Scene::Scene() {
     lightList.at(2)->color = Vector3(0.0, 1.0, 0.0);
 };
 void qbRT::Scene::update() {
-    camera.positionVector.x += 0.001;
+    //camera.positionVector.x += 0.001;
 }
 bool qbRT::Scene::render(qbImage &outputImage) {
     int xSize = outputImage.getXSize();
     int ySize = outputImage.getYSize();
-
-    qbRT::Ray cameraRay;
-    Vector3 intersectionPoint;
-    Vector3 localNormal;
-    Vector3 localColor;
     double xFactor = 1.0 / (static_cast<double>(xSize) / 2.0);
     double yFactor = 1.0 / (static_cast<double>(ySize) / 2.0);
     double minDist = 1e6;
     double maxDist = 0.0;
     for (int x = 0; x < xSize; x++) {
+        if (x % 150 == 0) std::cout << "drawing row " << x + 1 << " of " << xSize << "\n";
         for (int y = 0; y < ySize; y++) {
+            qbRT::Ray cameraRay;
             double normX = (static_cast<double>(x) * xFactor) - 1.0;
             double normY = (static_cast<double>(y) * yFactor) - 1.0;
             camera.generateRay(normX, normY, cameraRay);
@@ -81,27 +103,37 @@ bool qbRT::Scene::render(qbImage &outputImage) {
             Vector3 closestIntersectionPoint;
             Vector3 closestLocalNormal;
             Vector3 closestLocalColor;
-            double minimumDistance = 1e6;
-            bool intersectionFound = false;
-            for (auto currentObject: objectList) {
-                bool validIntersection = currentObject->testForIntersections(
-                    cameraRay,
-                    intersectionPoint,
-                    localNormal,
-                    localColor
-                );
-                if (!validIntersection) continue;
-                intersectionFound = true;
-                double dist = (intersectionPoint - cameraRay.aVector).getMagnitude();
-                if (dist < minimumDistance) {
-                    minimumDistance = dist;
-                    closestObject = currentObject;
-                    closestIntersectionPoint = intersectionPoint;
-                    closestLocalColor = localColor;
-                    closestLocalNormal = localNormal;
-                }
-            }
+            bool intersectionFound = castRay (
+                cameraRay,
+                closestObject,
+                closestIntersectionPoint,
+                closestLocalNormal,
+                closestLocalColor
+            );
+            //TODO All transformed vectors will be prefaced with local valid
             if (!intersectionFound) continue;
+            BaseMaterial::maxReflectionCount = 1;
+            if (closestObject->hasMaterial()) {
+                Vector3 color = closestObject->p_material->computeColor(
+                    objectList,
+                    lightList,
+                    closestObject,
+                    closestIntersectionPoint, 
+                    closestLocalNormal, cameraRay
+                );
+                outputImage.setPixel(x, y, color.x, color.y, color.z);
+            } else {
+                Vector3 color = BaseMaterial::computeDiffuseColor(
+                    objectList,
+                    lightList,
+                    closestObject,
+                    closestIntersectionPoint,
+                    closestLocalNormal, cameraRay
+                );
+                outputImage.setPixel(x, y, color.x, color.y, color.z);
+            }
+            BaseMaterial::reflectionCount = 0;
+            /*
             double red = 0.0;
             double green = 0.0;
             double blue = 0.0;
@@ -127,8 +159,40 @@ bool qbRT::Scene::render(qbImage &outputImage) {
                 closestLocalColor.x * red,
                 closestLocalColor.y * green, 
                 closestLocalColor.z * blue
-            );
+            );*/
         }
     }
     return true;
 }
+bool qbRT::Scene::castRay(
+    Ray t_ray, 
+    BaseObject* &o_closestObject,
+    Vector3 &o_closestIntersectionPoint,
+    Vector3 &o_closestNormal,
+    Vector3 &o_closestColor
+) {
+    double minimumDistance = 1e6;
+    bool intersectionFound = false;
+    for (auto currentObject: objectList) {
+        Vector3 intersectionPoint;
+        Vector3 localNormal;
+        Vector3 localColor;
+        bool validIntersection = currentObject->testForIntersections(
+            t_ray,
+            intersectionPoint,
+            localNormal,
+            localColor
+        );
+        if (!validIntersection) continue;
+        intersectionFound = true;
+        double dist = (intersectionPoint - t_ray.aVector).getMagnitude();
+        if (dist < minimumDistance) {
+            minimumDistance = dist;
+            o_closestObject = currentObject;
+            o_closestIntersectionPoint = intersectionPoint;
+            o_closestNormal = localNormal;
+            o_closestColor = localColor;
+        }
+    }
+    return intersectionFound;
+};

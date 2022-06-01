@@ -1,6 +1,6 @@
 #pragma once
-#include "Ray.hpp"
-#include "BaseObject.hpp"
+#include "../Ray.hpp"
+#include "../Objects/BaseObject.hpp"
 #include <vector>
 class BaseLight {
 public:

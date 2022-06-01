@@ -10,11 +10,11 @@ CApp::CApp() {
 
 bool CApp::OnInit() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) return false;
-	p_window = SDL_CreateWindow("RayTracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN);
+	p_window = SDL_CreateWindow("RayTracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 720, 405, SDL_WINDOW_SHOWN);
 
 	if (p_window != NULL) p_renderer = SDL_CreateRenderer(p_window, -1, 0);
 	else return false;
-    m_qbImage.initialize(1280, 720, p_renderer);
+    m_qbImage.initialize(720, 405, p_renderer);
 	SDL_SetRenderDrawColor(p_renderer, 255, 255, 255, 255);
 	SDL_RenderClear(p_renderer);
 

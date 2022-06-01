@@ -18,4 +18,10 @@ bool BaseObject::testForIntersections (
 void BaseObject::setTransformMatrix(const GeometricTransform &transformMatrix) { 
     geometricTransform = transformMatrix;
 };
+void BaseObject::setMaterial(BaseMaterial* t_material) {
+    p_material = t_material;
+};
+bool BaseObject::hasMaterial() {
+    return p_material != nullptr;
+};
 bool BaseObject::closeEnough(const double f1, const double f2) { return fabs(f1 - f2) < EPSILON }

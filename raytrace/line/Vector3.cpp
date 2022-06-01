@@ -19,8 +19,14 @@ void Vector3::normalize() {
     z = z == 0 ? z : z/mag;
 }
 Vector3 Vector3::operator+ (const Vector3 &rhs) const { return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);};
+Vector3 Vector3::operator-= (const double &rhs) { return Vector3(x - rhs, y - rhs, z - rhs);  };
+Vector3 operator- (const Vector3 &lhs, const double &rhs) { return Vector3(lhs) -= rhs; };
+Vector3 operator- (const double &lhs, const Vector3 &rhs) { return Vector3(rhs) -= lhs; };
+
 Vector3 Vector3::operator- (const Vector3 &rhs) const { return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);};
-Vector3 Vector3::operator* (const double &rhs) const { return Vector3(x * rhs, y * rhs, z * rhs); };
+Vector3 Vector3::operator*= (const double &rhs) { return Vector3(x * rhs, y * rhs, z * rhs);  }
+Vector3 operator* (const Vector3 &lhs, const double &rhs) { return Vector3(lhs) *= rhs; };
+Vector3 operator* (const double &lhs, const Vector3 &rhs) { return Vector3(rhs) *= lhs; };
 Vector3 Vector3::operator*= (const Matrix4 &rhs) {
     Vector3 outVector {
         rhs.values[0][0] * x + rhs.values[1][0] * y + rhs.values[2][0] * z + rhs.values[3][0],

@@ -207,6 +207,10 @@ double Matrix4::getDeterminant() {
         values[1][0] * values[3][1] * values[2][2]
     ) ;
 }
+bool Matrix4::operator== (const Matrix4 &rhs) {
+    for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j ++) if (values[i][j] != rhs.values[i][j]) return false;
+    return true;
+}
 Matrix4 Matrix4::operator*= (const Matrix4 &rhs) {
     Matrix4 temp = Matrix4(*this);
     values[0][0] = temp.values[0][0] * rhs.values[0][0] + temp.values[1][0] * rhs.values[0][1] + temp.values[2][0] * rhs.values[0][2] + temp.values[3][0] * rhs.values[0][3];
