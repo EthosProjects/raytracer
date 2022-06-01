@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include "Matrix4.hpp"
+// TODO: create operator to take double and vector both ways
 class Vector3 {
 public:
     double x { 0.0 };

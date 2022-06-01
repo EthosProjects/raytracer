@@ -2,7 +2,7 @@
 #include "./Scene.hpp"
 qbRT::Scene::Scene() {
 	// Configure the camera.
-	camera.setPositionVector  (Vector3{0.0, -10.0, 0.0});
+	camera.setPositionVector  (Vector3{0.0, -10.0,  -1.0});
 	camera.setLookAtVector     (Vector3{0.0, 0.0, 0.0});
 	camera.setUpVector	     (Vector3{0.0, 0.0, 1.0});
 	camera.setWidth            (0.25);
@@ -12,6 +12,9 @@ qbRT::Scene::Scene() {
     objectList.push_back(new SphereObject());
     objectList.push_back(new SphereObject());
     objectList.push_back(new SphereObject());
+    // Create plane
+    objectList.push_back(new PlaneObject());
+    objectList.at(3)->baseColor = Vector3 { 128.0, 128.0, 128.0 };
     // modify spheres
     GeometricTransform testTransform1, testTransform2, testTransform3;
     testTransform1.setTransform(

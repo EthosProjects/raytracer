@@ -4,6 +4,7 @@
 #include "./qbImage.hpp"
 #include "Camera.hpp"
 #include "SphereObject.hpp"
+#include "PlaneObject.hpp"
 #include "PointLight.hpp"
 namespace qbRT {
     class Scene {

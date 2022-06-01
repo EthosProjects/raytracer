@@ -4,7 +4,7 @@
 class BaseObject {
 public:
     BaseObject();
-    ~BaseObject();
+    virtual ~BaseObject();
 
     virtual bool testForIntersections(
         const qbRT::Ray &castRay, 
