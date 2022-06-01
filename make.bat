@@ -1,1 +1,1 @@
-cl *.cpp raytrace/*.cpp raytrace/line/*.cpp SDL2lib/SDL2.lib /EHsc -Femain.exe
+cl *.cpp raytrace/*.cpp raytrace/line/*.cpp SDL2lib/SDL2.lib /EHsc -Femain.exe /O2

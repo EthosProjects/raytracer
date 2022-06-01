@@ -19,6 +19,22 @@ bool PointLight::computeIllumination(
     Vector3 lightDirection = (positionVector - t_intersectionPoint).getNormalized();
     //Compute a starting point
     Vector3 startPoint = t_intersectionPoint;
+    //Contruct a ray to the light source
+    qbRT::Ray lightRay {startPoint, startPoint + lightDirection};
+    Vector3 pointOfIntersection;
+    Vector3 pointOfIntersectionNormal;
+    Vector3 pointOfIntersectionColor;
+    bool validIntersection { false };
+    for (auto currentObject : t_objectList) {
+        if (currentObject == t_currentObject) continue;
+        validIntersection = currentObject->testForIntersections(
+            lightRay,
+            pointOfIntersection,
+            pointOfIntersectionNormal,
+            pointOfIntersectionColor
+        );
+        if (validIntersection) return false;
+    }
     //Compute angle between local normal and the light ray
     //Note that we assume that localNormal is a unit vector
     double angle = acos(Vector3::dot(t_localNormal, lightDirection));

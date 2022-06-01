@@ -11,6 +11,7 @@ namespace qbRT {
     public:
         Scene();
         bool render(qbImage &outputImage);
+        void update();
         qbRT::Camera camera;
         std::vector<BaseObject*> objectList;
         std::vector<BaseLight*> lightList;

@@ -18,7 +18,7 @@ qbRT::Scene::Scene() {
     GeometricTransform planeMatrix;
     planeMatrix.setTransform(
         Vector3 { 0.0, 0.0, 0.75},
-        Vector3 { 0.0, 0.3, 0.0},
+        Vector3 { 0.0, 0.0, 0.0},
         Vector3 { 4.0, 4.0, 1.0 }
     );
     objectList.at(3)->setTransformMatrix(planeMatrix);
@@ -49,11 +49,17 @@ qbRT::Scene::Scene() {
     // Make test light
     lightList.push_back(new PointLight());
     lightList.at(0)->positionVector = Vector3(5.0, -10.0, -5.0);
-    lightList.at(0)->color = Vector3(1.0, 1.0, 1.0);
+    lightList.at(0)->color = Vector3(0.0, 0.0, 1.0);
     lightList.push_back(new PointLight());
     lightList.at(1)->positionVector = Vector3(-5.0, -10.0, -5.0);
-    lightList.at(1)->color = Vector3(1.0, 1.0, 1.0);
+    lightList.at(1)->color = Vector3(1.0, 0.0, 0.0);
+    lightList.push_back(new PointLight());
+    lightList.at(2)->positionVector = Vector3(0.0, -10.0, -5.0);
+    lightList.at(2)->color = Vector3(0.0, 1.0, 0.0);
 };
+void qbRT::Scene::update() {
+    camera.positionVector.x += 0.001;
+}
 bool qbRT::Scene::render(qbImage &outputImage) {
     int xSize = outputImage.getXSize();
     int ySize = outputImage.getYSize();
@@ -96,13 +102,13 @@ bool qbRT::Scene::render(qbImage &outputImage) {
                 }
             }
             if (!intersectionFound) continue;
-            double intensity;
-            Vector3 color;
             double red = 0.0;
             double green = 0.0;
             double blue = 0.0;
             bool illuminationFound = false;
             for (auto currentLight: lightList) {
+                double intensity { 1.0 };
+                Vector3 color;
                 if (!currentLight->computeIllumination(
                     closestIntersectionPoint,
                     closestLocalNormal,
