@@ -18,11 +18,13 @@ public:
 private: 
     uint32_t convertColor(const double red, const double green, const double blue);
     void initTexture();
+    void computeMaxValues();
 private:
     //Image stuff
     std::vector<std::vector<double>> m_redChannel;
     std::vector<std::vector<double>> m_greenChannel;
     std::vector<std::vector<double>> m_blueChannel;
+    double maxRed, maxGreen, maxBlue, maxColor;
     int m_xSize, m_ySize;
     //SDL Stuff
     SDL_Renderer* m_p_renderer;

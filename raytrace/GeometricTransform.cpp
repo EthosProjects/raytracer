@@ -45,11 +45,12 @@ void GeometricTransform::setTransform(const Vector3 &translation, const Vector3 
     scaleMatrix.values[1][1] = scale.y;
     scaleMatrix.values[2][2] = scale.z;
     // Combine
-    forwardTransform = translationMatrix * 
-        scaleMatrix * 
+    forwardTransform = 
+        translationMatrix * 
         rotationXMatrix * 
         rotationYMatrix * 
-        rotationZMatrix;
+        rotationZMatrix *
+        scaleMatrix;
     backwardTransform = forwardTransform;
     backwardTransform.toInverse();
 };

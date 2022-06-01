@@ -2,7 +2,7 @@
 #include "./Scene.hpp"
 qbRT::Scene::Scene() {
 	// Configure the camera.
-	camera.setPositionVector  (Vector3{0.0, -10.0,  -1.0});
+	camera.setPositionVector  (Vector3{0.0, -10.0, -1.0});
 	camera.setLookAtVector     (Vector3{0.0, 0.0, 0.0});
 	camera.setUpVector	     (Vector3{0.0, 0.0, 1.0});
 	camera.setWidth            (0.25);
@@ -14,7 +14,14 @@ qbRT::Scene::Scene() {
     objectList.push_back(new SphereObject());
     // Create plane
     objectList.push_back(new PlaneObject());
-    objectList.at(3)->baseColor = Vector3 { 128.0, 128.0, 128.0 };
+    objectList.at(3)->baseColor = Vector3 { 0.5, 0.5, 0.5 };
+    GeometricTransform planeMatrix;
+    planeMatrix.setTransform(
+        Vector3 { 0.0, 0.0, 0.75},
+        Vector3 { 0.0, 0.3, 0.0},
+        Vector3 { 4.0, 4.0, 1.0 }
+    );
+    objectList.at(3)->setTransformMatrix(planeMatrix);
     // modify spheres
     GeometricTransform testTransform1, testTransform2, testTransform3;
     testTransform1.setTransform(
@@ -36,13 +43,16 @@ qbRT::Scene::Scene() {
     objectList.at(1)->setTransformMatrix(testTransform2);
     objectList.at(2)->setTransformMatrix(testTransform3);
 
-    objectList.at(0)->baseColor = Vector3 { 64.0, 128.0, 200.0 };
-    objectList.at(1)->baseColor = Vector3 { 255.0, 128.0, 0.0 };
-    objectList.at(2)->baseColor = Vector3 { 255.0, 255.0, 0.0 };
+    objectList.at(0)->baseColor = Vector3 { 0.25, 0.5, 0.8 };
+    objectList.at(1)->baseColor = Vector3 { 1.0, 0.5, 0.0 };
+    objectList.at(2)->baseColor = Vector3 { 1.0, 0.8, 0.0 };
     // Make test light
     lightList.push_back(new PointLight());
     lightList.at(0)->positionVector = Vector3(5.0, -10.0, -5.0);
-    lightList.at(0)->color = Vector3(255.0, 255.0, 255.0);
+    lightList.at(0)->color = Vector3(1.0, 1.0, 1.0);
+    lightList.push_back(new PointLight());
+    lightList.at(1)->positionVector = Vector3(-5.0, -10.0, -5.0);
+    lightList.at(1)->color = Vector3(1.0, 1.0, 1.0);
 };
 bool qbRT::Scene::render(qbImage &outputImage) {
     int xSize = outputImage.getXSize();
@@ -61,6 +71,12 @@ bool qbRT::Scene::render(qbImage &outputImage) {
             double normX = (static_cast<double>(x) * xFactor) - 1.0;
             double normY = (static_cast<double>(y) * yFactor) - 1.0;
             camera.generateRay(normX, normY, cameraRay);
+            BaseObject* closestObject;
+            Vector3 closestIntersectionPoint;
+            Vector3 closestLocalNormal;
+            Vector3 closestLocalColor;
+            double minimumDistance = 1e6;
+            bool intersectionFound = false;
             for (auto currentObject: objectList) {
                 bool validIntersection = currentObject->testForIntersections(
                     cameraRay,
@@ -68,35 +84,44 @@ bool qbRT::Scene::render(qbImage &outputImage) {
                     localNormal,
                     localColor
                 );
-                if (validIntersection) {
-                    double intensity;
-                    Vector3 color;
-                    bool validIllumination;
-                    for (auto currentLight: lightList) {
-                        validIllumination = currentLight->computeIllumination(
-                            intersectionPoint,
-                            localNormal,
-                            objectList,
-                            currentObject,
-                            color,
-                            intensity
-                        );
-                    }
-                    double dist = (intersectionPoint - cameraRay.aVector).getMagnitude();
-                    if (validIllumination) {
-                        outputImage.setPixel(x, y, 
-                            localColor.x * intensity,
-                            localColor.y * intensity, 
-                            localColor.z * intensity
-                        );
-                    }
-                    /*outputImage.setPixel(x, y, 
-                        0.0, 
-                        0.0, 
-                        255.0 - (dist - 9.0) / 0.94605 * 255.0
-                    );*/
-                } 
+                if (!validIntersection) continue;
+                intersectionFound = true;
+                double dist = (intersectionPoint - cameraRay.aVector).getMagnitude();
+                if (dist < minimumDistance) {
+                    minimumDistance = dist;
+                    closestObject = currentObject;
+                    closestIntersectionPoint = intersectionPoint;
+                    closestLocalColor = localColor;
+                    closestLocalNormal = localNormal;
+                }
             }
+            if (!intersectionFound) continue;
+            double intensity;
+            Vector3 color;
+            double red = 0.0;
+            double green = 0.0;
+            double blue = 0.0;
+            bool illuminationFound = false;
+            for (auto currentLight: lightList) {
+                if (!currentLight->computeIllumination(
+                    closestIntersectionPoint,
+                    closestLocalNormal,
+                    objectList,
+                    closestObject,
+                    color,
+                    intensity
+                )) continue;
+                illuminationFound = true;
+                red += color.x * intensity;
+                green += color.y * intensity;
+                blue += color.z * intensity;
+            }
+            if (!illuminationFound) continue; 
+            outputImage.setPixel(x, y, 
+                closestLocalColor.x * red,
+                closestLocalColor.y * green, 
+                closestLocalColor.z * blue
+            );
         }
     }
     return true;
