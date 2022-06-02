@@ -20,7 +20,8 @@ Vector3 SimpleMaterial::computeColor (
         t_closestObject,
         t_closestIntersectionPoint,
         t_closestLocalNormal,
-        t_cameraRay
+        t_cameraRay,
+        color
     );
     //Compute shininess
     if (shininess > 0.0) {

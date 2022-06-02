@@ -20,7 +20,9 @@ public:
         const BaseObject* t_closestObject,
         const Vector3 &t_closestIntersectionPoint,
         const Vector3 &t_closestLocalNormal, 
-        const qbRT::Ray t_cameraRay
+        const qbRT::Ray t_cameraRay,
+        //TODO: local refers to coordinates. It is redundant for colors
+        const Vector3 &t_localColor
     );
     virtual Vector3 computeReflectionColor(
         const std::vector<BaseObject*> &t_objectList,

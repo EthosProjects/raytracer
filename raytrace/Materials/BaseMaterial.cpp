@@ -18,7 +18,8 @@ Vector3 BaseMaterial::computeDiffuseColor(
     const BaseObject* t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay
+    const qbRT::Ray t_cameraRay,
+    const Vector3 &t_localColor
 ) {
     double red = 0.0;
     double green = 0.0;
@@ -42,9 +43,9 @@ Vector3 BaseMaterial::computeDiffuseColor(
     }
     //if (!illuminationFound) return Vector3(0.0, 0.0, 0.0);
     return Vector3 {
-        red * t_closestObject->baseColor.x,
-        green * t_closestObject->baseColor.y,
-        blue * t_closestObject->baseColor.z
+        red * t_localColor.x,
+        green * t_localColor.y,
+        blue * t_localColor.z
     };
 };
 
@@ -102,7 +103,8 @@ Vector3 BaseMaterial::computeReflectionColor(
                 closestObject,
                 closestIntersectionPoint,
                 closestLocalNormal,
-                reflectionRay
+                reflectionRay,
+                closestObject->baseColor
             );
         }
     }

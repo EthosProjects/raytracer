@@ -9,6 +9,7 @@ class GeometricTransform {
 public: 
     GeometricTransform();
     GeometricTransform(const Matrix4 &fwd, const Matrix4 &bck);
+    GeometricTransform(const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
 
     void setTransform (const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
 

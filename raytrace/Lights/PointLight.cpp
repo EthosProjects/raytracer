@@ -17,6 +17,7 @@ bool PointLight::computeIllumination(
 ) {
     //Compute the direction
     Vector3 lightDirection = (positionVector - t_intersectionPoint).getNormalized();
+    double lightDistance = (positionVector - t_intersectionPoint).getMagnitude();
     //Compute a starting point
     Vector3 startPoint = t_intersectionPoint;
     //Contruct a ray to the light source
@@ -33,6 +34,11 @@ bool PointLight::computeIllumination(
             pointOfIntersectionNormal,
             pointOfIntersectionColor
         );
+        // Tells the code to keep looking for one if it didn't find one. If it did, then next
+        // I compute to make sure the found item is between the light and the object;
+        if (!validIntersection) continue;
+        double distance = (pointOfIntersection - startPoint).getMagnitude();
+        if (distance > lightDistance) validIntersection = false;
         if (validIntersection) return false;
     }
     //Compute angle between local normal and the light ray

@@ -1,34 +1,83 @@
 #pragma once
 #include "./Scene.hpp"
 #include "Materials/SimpleMaterial.hpp"
+#include "Objects/CylinderObject.hpp"
+#include "Objects/ConeObject.hpp"
 qbRT::Scene::Scene() {
     //Create some materials
     //TODO: Created pointer without freeing it
     //TODO: Create constructors to avoid this hellscape
+    auto yellowDiffuse = new SimpleMaterial();
+    yellowDiffuse->color = Vector3 { 0.8, 0.8, 0.3 };
+    yellowDiffuse->reflectivity = 0.0;
+    yellowDiffuse->shininess = 5.0;
+    auto blueDiffuse = new SimpleMaterial();
+    blueDiffuse->color = Vector3 { 0.2, 0.2, 1.0 };
+    blueDiffuse->reflectivity = 0.0;
+    blueDiffuse->shininess = 5.0;
+    auto floorMaterial = new SimpleMaterial();
+    floorMaterial->color = Vector3 { 1.0, 1.0, 1.0 };
+    floorMaterial->reflectivity = 0.5;
+    floorMaterial->shininess = 0.0;
+    auto floor = new PlaneObject();
+    floor->setTransformMatrix (
+        GeometricTransform {
+            Vector3 { 0.0, 0.0, 1.0},
+            Vector3 { 0.0, 0.0, 0.0},
+            Vector3 { 16.0, 16.0, 1.0 }
+        }
+    );
+    floor->setMaterial(floorMaterial);
+    objectList.push_back(floor);
+    
+    auto cylinder = new CylinderObject();
+    cylinder->setTransformMatrix (
+        GeometricTransform {
+            Vector3 { -1.0, 0.0, 0.0},
+            Vector3 { -M_PI/4.0, 0.0, 0.0},
+            Vector3 { 0.5, 0.5, 1.0 }
+        }
+    );
+    cylinder->setMaterial(blueDiffuse);
+    objectList.push_back(cylinder);
+    auto cone1 = new ConeObject();
+    cone1->setTransformMatrix (
+        GeometricTransform {
+            Vector3 { 1.0, 0.0, 0.0},
+            Vector3 { M_PI/4.0, 0.0, 0.0},
+            Vector3 { 0.5, 0.5, 1.0 }
+        }
+    );
+    cone1->setMaterial(yellowDiffuse);
+    objectList.push_back(cone1);
+    //std::cout << cylinder->geometricTransform.getForwardMatrix();
+    /*
     auto testMaterial = new SimpleMaterial();
     testMaterial->color = Vector3 { 0.25, 0.5, 0.8 };
-    testMaterial->reflectivity = 0.75;
+    testMaterial->reflectivity = 0.1;
     testMaterial->shininess = 10.0;
     auto testMaterial2 = new SimpleMaterial();
     testMaterial2->color = Vector3 { 1.0, 0.5, 0.0 };
-    testMaterial2->reflectivity = 0.5;
+    testMaterial2->reflectivity = 0.75;
     testMaterial2->shininess = 10.0;
     auto testMaterial3 = new SimpleMaterial();
     testMaterial3->color = Vector3 { 1.0, 0.8, 0.0 };
     testMaterial3->reflectivity = 0.25;
     testMaterial3->shininess = 10.0;
-    auto testMaterial4 = new SimpleMaterial();
-    testMaterial4->color = Vector3 { 0.5, 0.5, 0.5 };
-    testMaterial4->reflectivity = 0.5;
-    testMaterial4->shininess = 0.0;
-	// Configure the camera.
-	camera.setPositionVector  (Vector3{0.0, -10.0, -1.0});
+    auto floorMaterial = new SimpleMaterial();
+    floorMaterial->color = Vector3 { 1.0, 1.0, 1.0 };
+    floorMaterial->reflectivity = 0.5;
+    floorMaterial->shininess = 0.0;
+	*/
+    // Configure the camera.
+	camera.setPositionVector  (Vector3{0.0, -10.0, -2.0});
 	camera.setLookAtVector     (Vector3{0.0, 0.0, 0.0});
 	camera.setUpVector	     (Vector3{0.0, 0.0, 1.0});
 	camera.setWidth            (0.25);
 	camera.setAspectRatio      (16.0 / 9.0);
 	camera.updateCameraGeometry();
     // Make objects
+    /*
     objectList.push_back(new SphereObject());
     objectList.push_back(new SphereObject());
     objectList.push_back(new SphereObject());
@@ -67,10 +116,11 @@ qbRT::Scene::Scene() {
     objectList.at(1)->baseColor = Vector3 { 1.0, 0.5, 0.0 };
     objectList.at(2)->baseColor = Vector3 { 1.0, 0.8, 0.0 };
     //Assign materials
-    objectList.at(0)->setMaterial(testMaterial);
-    objectList.at(1)->setMaterial(testMaterial2);
-    objectList.at(2)->setMaterial(testMaterial3);
-    objectList.at(3)->setMaterial(testMaterial4);
+    objectList.at(0)->setMaterial(testMaterial3);
+    objectList.at(1)->setMaterial(testMaterial);
+    objectList.at(2)->setMaterial(testMaterial2);
+    objectList.at(3)->setMaterial(floorMaterial);
+    */
     // Make test light
     lightList.push_back(new PointLight());
     lightList.at(0)->positionVector = Vector3(5.0, -10.0, -5.0);
@@ -81,6 +131,7 @@ qbRT::Scene::Scene() {
     lightList.push_back(new PointLight());
     lightList.at(2)->positionVector = Vector3(0.0, -10.0, -5.0);
     lightList.at(2)->color = Vector3(0.0, 1.0, 0.0);
+    
 };
 void qbRT::Scene::update() {
     //camera.positionVector.x += 0.001;
@@ -112,7 +163,7 @@ bool qbRT::Scene::render(qbImage &outputImage) {
             );
             //TODO All transformed vectors will be prefaced with local valid
             if (!intersectionFound) continue;
-            BaseMaterial::maxReflectionCount = 1;
+            BaseMaterial::maxReflectionCount = 3;
             if (closestObject->hasMaterial()) {
                 Vector3 color = closestObject->p_material->computeColor(
                     objectList,
@@ -128,7 +179,8 @@ bool qbRT::Scene::render(qbImage &outputImage) {
                     lightList,
                     closestObject,
                     closestIntersectionPoint,
-                    closestLocalNormal, cameraRay
+                    closestLocalNormal, cameraRay,
+                    closestObject->baseColor
                 );
                 outputImage.setPixel(x, y, color.x, color.y, color.z);
             }

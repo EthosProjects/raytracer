@@ -1,7 +1,10 @@
 // Raytracer.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #define SDL_MAIN_HANDLED
-
+// TODO: Split raytracer itself from rendering. We create an image buffer using raytracing and then we 
+// pass a reference to the buffer to the renderer. Once we've passed the buffer we can then use an SDL
+// Adapter to adapt our pure buffer the screen. Possibly in the future we could develop an algo that can
+// Turn our arbitrarily sized image into a smaller one with math.
 #include <iostream>
 #include "CApp.hpp"
 #include "raytrace/line/Matrix4.hpp"

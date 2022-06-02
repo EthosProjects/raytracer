@@ -15,7 +15,10 @@ public:
     void normalize();
     Vector3 operator+ (const Vector3 &rhs) const;
     Vector3 operator- (const Vector3 &rhs) const;
+    Vector3 operator+= (const double &rhs);
+    Vector3 operator+= (const Vector3 &rhs);
     Vector3 operator-= (const double &rhs);
+    Vector3 operator-= (const Vector3 &rhs);
     Vector3 operator*= (const Matrix4 &rhs);
     Vector3 operator*= (const double &rhs);
 
@@ -24,6 +27,8 @@ public:
     
     friend std::ostream& operator<<(std::ostream& os, const Vector3& vector);
 };
+Vector3 operator+ (const Vector3 &lhs, const double &rhs);
+Vector3 operator+ (const double &lhs, const Vector3 &rhs);
 Vector3 operator- (const Vector3 &lhs, const double &rhs);
 Vector3 operator- (const double &lhs, const Vector3 &rhs);
 //Vector3 operator* (const Vector3 &lhs, const Vector3 &rhs);
