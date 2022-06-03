@@ -151,3 +151,7 @@ bool BaseMaterial::castRay(
     }
     return intersectionFound;
 };
+void BaseMaterial::addTexture(Texture::BaseTexture &t_texture) {
+    textureList.push_back(&t_texture);
+    hasTexture = true;
+}

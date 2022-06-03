@@ -97,6 +97,14 @@ bool ConeObject::testForIntersections(
         globalNormal = geometricTransform.apply(localNormal, true) - globalOrigin;
         o_localNormal = globalNormal.getNormalized();
         o_color = baseColor;
+        // UV. Notice note in the Sphere/pplane objects
+        double x = validPointOfIntersection.x;
+        double y = validPointOfIntersection.y;
+        double z = validPointOfIntersection.z;
+        double u = atan2(y, x) / M_PI;
+        double v = z * 2.0 + 1.0;
+        UVCoordinates.x = u;
+        UVCoordinates.y = v;
         return true;
     } else {
         // In the disk
@@ -112,6 +120,11 @@ bool ConeObject::testForIntersections(
         Vector3 normal = geometricTransform.apply(localNormal, true) - globalOrigin;
         o_localNormal = normal.getNormalized();
         o_color = baseColor;
+        //TODO: UV note in the sphere object
+        double x = validPointOfIntersection.x;
+        double y = validPointOfIntersection.y;
+        UVCoordinates.x = x;
+        UVCoordinates.y = y;
         return true; 
     };
 };

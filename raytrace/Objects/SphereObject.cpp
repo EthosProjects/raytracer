@@ -61,5 +61,20 @@ bool SphereObject::testForIntersections(
 
     // Return color
     localColor = baseColor;
+
+    //TODO: move defining UV coordinates to a function
+    // compute UV coordinates
+    double x = poi.x;
+    double y = poi.y;
+    double z = poi.z;
+    double u = atan(sqrtf(x * x + y * y) / z);
+    double v = atan(y/x);
+    if (x < 0) {
+        v += M_PI;
+    }
+    u /= M_PI;
+    v /= M_PI;
+    UVCoordinates.x = u;
+    UVCoordinates.y = v;
     return true;
 }

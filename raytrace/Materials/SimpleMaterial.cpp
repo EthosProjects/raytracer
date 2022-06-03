@@ -14,15 +14,28 @@ Vector3 SimpleMaterial::computeColor (
     Vector3 diffuseColor;
     Vector3 specularColor;
     //Compute diffuse color
-    diffuseColor = computeDiffuseColor(
-        t_objectList,
-        t_lightList,
-        t_closestObject,
-        t_closestIntersectionPoint,
-        t_closestLocalNormal,
-        t_cameraRay,
-        color
-    );
+    if (!hasTexture) {
+      diffuseColor = computeDiffuseColor(
+            t_objectList,
+            t_lightList,
+            t_closestObject,
+            t_closestIntersectionPoint,
+            t_closestLocalNormal,
+            t_cameraRay,
+            color
+        );
+    } else {
+        Vector4 color4 = textureList.at(0)->getColor(t_closestObject->UVCoordinates);
+        diffuseColor = computeDiffuseColor(
+            t_objectList,
+            t_lightList,
+            t_closestObject,
+            t_closestIntersectionPoint,
+            t_closestLocalNormal,
+            t_cameraRay,
+            Vector3 { color4.x, color4.y, color4.z }
+        );
+    }
     //Compute shininess
     if (shininess > 0.0) {
         specularColor = computeSpecularColor(

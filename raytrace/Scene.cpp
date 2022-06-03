@@ -3,22 +3,29 @@
 #include "Materials/SimpleMaterial.hpp"
 #include "Objects/CylinderObject.hpp"
 #include "Objects/ConeObject.hpp"
+#include "Textures/FlatTexture.hpp"
+#include "Textures/CheckerboardTexture.hpp"
 qbRT::Scene::Scene() {
     //Create some materials
     //TODO: Created pointer without freeing it
     //TODO: Create constructors to avoid this hellscape
+    auto firstTexture = new Texture::CheckerboardTexture();
     auto yellowDiffuse = new SimpleMaterial();
     yellowDiffuse->color = Vector3 { 0.8, 0.8, 0.3 };
     yellowDiffuse->reflectivity = 0.0;
     yellowDiffuse->shininess = 5.0;
+    yellowDiffuse->addTexture(*firstTexture);
     auto blueDiffuse = new SimpleMaterial();
     blueDiffuse->color = Vector3 { 0.2, 0.2, 1.0 };
     blueDiffuse->reflectivity = 0.0;
     blueDiffuse->shininess = 5.0;
+    blueDiffuse->addTexture(*firstTexture);
+    //TODO allow classes to take advantage of the builder pattern
     auto floorMaterial = new SimpleMaterial();
     floorMaterial->color = Vector3 { 1.0, 1.0, 1.0 };
     floorMaterial->reflectivity = 0.5;
     floorMaterial->shininess = 0.0;
+    floorMaterial->addTexture(*firstTexture);
     auto floor = new PlaneObject();
     floor->setTransformMatrix (
         GeometricTransform {
@@ -50,6 +57,16 @@ qbRT::Scene::Scene() {
     );
     cone1->setMaterial(yellowDiffuse);
     objectList.push_back(cone1);
+    auto sphere = new SphereObject();
+    sphere->setTransformMatrix (
+        GeometricTransform {
+            Vector3 { 0.0, 0.0, 0.0},
+            Vector3 { M_PI/4.0, 0.0, 0.0},
+            Vector3 { 1.0, 1.0, 1.0 }
+        }
+    );
+    sphere->setMaterial(yellowDiffuse);
+    objectList.push_back(sphere);
     //std::cout << cylinder->geometricTransform.getForwardMatrix();
     /*
     auto testMaterial = new SimpleMaterial();

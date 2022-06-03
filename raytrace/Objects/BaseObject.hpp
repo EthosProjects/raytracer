@@ -1,6 +1,8 @@
 #pragma once
 #include "../Ray.hpp"
 #include "../GeometricTransform.hpp"
+//TODO: Define M_PI locally to avoid dependence on external libraries
+#include "../../SDL2/SDL.h"
 class BaseMaterial;
 class BaseObject {
 public:
@@ -27,4 +29,6 @@ public:
     BaseMaterial* p_material { nullptr };
     void setMaterial(BaseMaterial* t_material);
     bool hasMaterial();
+    // store UV coordinates from an intersection
+    Vector3 UVCoordinates;
 };

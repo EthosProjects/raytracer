@@ -28,5 +28,10 @@ bool PlaneObject::testForIntersections(
     Vector3 globalObjectOrigin = geometricTransform.apply(objectOrigin, true);
     localNormal = geometricTransform.apply(normalVector, true) - globalObjectOrigin;
     localColor = baseColor;
+
+    //TODO: move defining UV coordinates to a function
+    // set UV coordinates
+    UVCoordinates.x = u;
+    UVCoordinates.y = v;
     return true;
 }

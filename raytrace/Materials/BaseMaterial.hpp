@@ -1,4 +1,5 @@
 #pragma once
+#include "../Textures/BaseTexture.hpp"
 #include "../Objects/BaseObject.hpp"
 #include "../Lights/BaseLight.hpp"
 #include "../line/Vector3.hpp"
@@ -45,4 +46,16 @@ public:
     // variables for reflections
     inline static int maxReflectionCount;
     inline static int reflectionCount;
+
+
+    //TODO: verify this requires a function 
+    //TODO: determine a method to make the input const but still get the color later
+    // This will likely require making the getColor function const as well so that I can call
+    // it on const instances of the texture class 
+    void addTexture (Texture::BaseTexture &t_texture);
+
+    // List of textures assigned to this material
+    std::vector<const Texture::BaseTexture*> textureList;
+    //Flag to indicate that at least one texture is assigned
+    bool hasTexture { false };
 };
