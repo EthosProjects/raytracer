@@ -9,7 +9,7 @@ bool PlaneObject::testForIntersections(
     Vector3 &intersectionPoint, 
     Vector3 &localNormal,
     Vector3 &localColor
-) {
+) const {
     qbRT::Ray backRay = geometricTransform.apply(castRay, false);
 	// Compute the values of a, b and c.
 	Vector3 vhat = backRay.labVector;
@@ -28,10 +28,13 @@ bool PlaneObject::testForIntersections(
     Vector3 globalObjectOrigin = geometricTransform.apply(objectOrigin, true);
     localNormal = geometricTransform.apply(normalVector, true) - globalObjectOrigin;
     localColor = baseColor;
-
-    //TODO: move defining UV coordinates to a function
-    // set UV coordinates
-    UVCoordinates.x = u;
-    UVCoordinates.y = v;
     return true;
 }
+// get UV coordinates from an intersection
+Vector3 PlaneObject::getUVCoordinates(const Vector3 &t_intersectionPoint) const {
+    return Vector3 {
+        t_intersectionPoint.x,
+        t_intersectionPoint.y,
+        0.0
+    };
+};

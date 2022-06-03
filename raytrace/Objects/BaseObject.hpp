@@ -16,9 +16,10 @@ public:
         Vector3 &intersectionPoint, 
         Vector3 &localNormal,
         Vector3 &localColor
-    );
+    ) const;
 
-    bool closeEnough(const double f1, const double f2);
+    static bool closeEnough(const double f1, const double f2);
+    static bool closeEnoughLoose(const double f1, const double f2);
 
     Vector3 baseColor;
 
@@ -28,7 +29,7 @@ public:
 
     BaseMaterial* p_material { nullptr };
     void setMaterial(BaseMaterial* t_material);
-    bool hasMaterial();
+    bool hasMaterial() const;
     // store UV coordinates from an intersection
-    Vector3 UVCoordinates;
+    virtual Vector3 getUVCoordinates(const Vector3 &t_intersectionPoint) const;
 };

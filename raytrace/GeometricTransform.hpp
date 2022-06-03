@@ -15,10 +15,8 @@ public:
 
     Matrix4 getForwardMatrix();
     Matrix4 getBackwardMatrix();
-    qbRT::Ray apply (const qbRT::Ray &inputRay, bool directionFlag);
-    Vector3 apply (const Vector3 &inputVector, bool directionFlag);
-    qbRT::Ray ranFun(const qbRT::Ray &castRay, bool directionFlag);
-    Vector3 ranFun (const Vector3 &inputVector, bool directionFlag);
+    qbRT::Ray apply (const qbRT::Ray &inputRay, bool directionFlag) const;
+    Vector3 apply (const Vector3 &inputVector, bool directionFlag) const;
     friend GeometricTransform operator* (const GeometricTransform &lhs, const GeometricTransform &rhs);
     GeometricTransform operator=(const GeometricTransform &rhs);
     friend std::ostream& operator<<(std::ostream& os, const GeometricTransform& gtfm);

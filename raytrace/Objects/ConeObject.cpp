@@ -8,7 +8,7 @@ bool ConeObject::testForIntersections(
     Vector3 &o_intersectionPoint, 
     Vector3 &o_localNormal,
     Vector3 &o_color
-) {
+) const {
     qbRT::Ray backRay = geometricTransform.apply(t_ray, false);
     // Copy the lab ray's lab vector and normalize
 	Vector3 vhat = backRay.labVector;
@@ -97,14 +97,6 @@ bool ConeObject::testForIntersections(
         globalNormal = geometricTransform.apply(localNormal, true) - globalOrigin;
         o_localNormal = globalNormal.getNormalized();
         o_color = baseColor;
-        // UV. Notice note in the Sphere/pplane objects
-        double x = validPointOfIntersection.x;
-        double y = validPointOfIntersection.y;
-        double z = validPointOfIntersection.z;
-        double u = atan2(y, x) / M_PI;
-        double v = z * 2.0 + 1.0;
-        UVCoordinates.x = u;
-        UVCoordinates.y = v;
         return true;
     } else {
         // In the disk
@@ -120,11 +112,22 @@ bool ConeObject::testForIntersections(
         Vector3 normal = geometricTransform.apply(localNormal, true) - globalOrigin;
         o_localNormal = normal.getNormalized();
         o_color = baseColor;
-        //TODO: UV note in the sphere object
-        double x = validPointOfIntersection.x;
-        double y = validPointOfIntersection.y;
-        UVCoordinates.x = x;
-        UVCoordinates.y = y;
         return true; 
     };
+};
+// get UV coordinates from an intersection
+Vector3 ConeObject::getUVCoordinates(const Vector3 &t_intersectionPoint) const {
+    if (closeEnoughLoose(t_intersectionPoint.z, 1.0))  return Vector3 {
+        t_intersectionPoint.x,
+        t_intersectionPoint.y,
+        0.0
+    };
+    else {
+        double x = t_intersectionPoint.x;
+        double y = t_intersectionPoint.y;
+        double z = t_intersectionPoint.z;
+        double u = atan2(y, x) / M_PI;
+        double v = z * 2.0 + 1.0;
+        return Vector3 { u, v, 0.0 };
+    }
 };

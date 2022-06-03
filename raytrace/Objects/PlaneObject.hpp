@@ -8,6 +8,7 @@ public:
         Vector3 &intersectionPoint, 
         Vector3 &localNormal,
         Vector3 &localColor
-    ) override;
-private:
+    ) const override;
+    // get UV coordinates from an intersection
+    virtual Vector3 getUVCoordinates(const Vector3 &t_intersectionPoint) const override;
 };

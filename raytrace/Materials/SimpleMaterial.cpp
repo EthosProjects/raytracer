@@ -14,6 +14,9 @@ Vector3 SimpleMaterial::computeColor (
     Vector3 diffuseColor;
     Vector3 specularColor;
     //Compute diffuse color
+    //NOTE: the way that this functions, if there is a material with a texture then
+    //color picking is processed by the texture and then evyrthing else is cutely handled
+    //by the material
     if (!hasTexture) {
       diffuseColor = computeDiffuseColor(
             t_objectList,
@@ -25,7 +28,10 @@ Vector3 SimpleMaterial::computeColor (
             color
         );
     } else {
-        Vector4 color4 = textureList.at(0)->getColor(t_closestObject->UVCoordinates);
+        Vector4 color4 = textureList.at(0)->getColor(
+            t_closestObject->getUVCoordinates(
+                t_closestObject->geometricTransform.apply(t_closestIntersectionPoint, false)
+            ));
         diffuseColor = computeDiffuseColor(
             t_objectList,
             t_lightList,

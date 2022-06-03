@@ -4,21 +4,12 @@ SphereObject::SphereObject() {};
 SphereObject::~SphereObject() {
     
 };
-qbRT::Ray ranFun(const qbRT::Ray &castRay) {
-    qbRT::Ray outputRay;
-    outputRay.aVector = castRay.aVector;
-    outputRay.bVector = castRay.bVector;
-    //outputRay.aVector = apply(inputRay.aVector, directionFlag);
-    //outputRay.bVector = apply(inputRay.bVector, directionFlag);
-    outputRay.labVector = outputRay.bVector - outputRay.aVector;
-    return outputRay;
-}
 bool SphereObject::testForIntersections(
     const qbRT::Ray &castRay, 
     Vector3 &intersectionPoint, 
     Vector3 &localNormal,
     Vector3 &localColor
-) {
+) const {
     qbRT::Ray backRay = geometricTransform.apply(castRay, false);
 	// Compute the values of a, b and c.
 	Vector3 vhat = backRay.labVector;
@@ -61,12 +52,13 @@ bool SphereObject::testForIntersections(
 
     // Return color
     localColor = baseColor;
-
-    //TODO: move defining UV coordinates to a function
-    // compute UV coordinates
-    double x = poi.x;
-    double y = poi.y;
-    double z = poi.z;
+    return true;
+}
+// get UV coordinates from an intersection
+Vector3 SphereObject::getUVCoordinates(const Vector3 &t_intersectionPoint) const {
+    double x = t_intersectionPoint.x;
+    double y = t_intersectionPoint.y;
+    double z = t_intersectionPoint.z;
     double u = atan(sqrtf(x * x + y * y) / z);
     double v = atan(y/x);
     if (x < 0) {
@@ -74,7 +66,9 @@ bool SphereObject::testForIntersections(
     }
     u /= M_PI;
     v /= M_PI;
-    UVCoordinates.x = u;
-    UVCoordinates.y = v;
-    return true;
-}
+    return Vector3 {
+        u,
+        v,
+        0.0
+    };
+};

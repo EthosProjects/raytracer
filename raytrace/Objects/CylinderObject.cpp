@@ -6,7 +6,7 @@ bool CylinderObject::testForIntersections(
     Vector3 &o_intersectionPoint, 
     Vector3 &o_localNormal,
     Vector3 &o_color
-) {
+) const {
     qbRT::Ray backRay = geometricTransform.apply(t_ray, false);
     // Copy the lab ray's lab vector and normalize
 	Vector3 vhat = backRay.labVector;
@@ -100,27 +100,6 @@ bool CylinderObject::testForIntersections(
         Vector3 globalNormal = geometricTransform.apply(localNormal, true) - globalOrigin;
         o_localNormal = globalNormal.getNormalized();
         o_color = baseColor;
-        // UV. Notice note in the Sphere/pplane objects
-        double x = validPointOfIntersection.x;
-        double y = validPointOfIntersection.y;
-        double z = validPointOfIntersection.z;
-        double u = atan2(y, x) / M_PI;
-        double v = z;
-        UVCoordinates.x = u;
-        UVCoordinates.y = v;
-        /*
-        o_intersectionPoint = geometricTransform.apply(validPointOfIntersection, true);
-        // Compute the local normal
-        Vector3 localNormal;
-        Vector3 globalNormal;
-        Vector3 localOrigin { 0.0, 0.0, 0.0 };
-        Vector3 globalOrigin = geometricTransform.apply(localOrigin, true);
-        localNormal.x = validPointOfIntersection.x; 
-        localNormal.y = validPointOfIntersection.y; 
-        localNormal.z = 0.0;
-        globalNormal = geometricTransform.apply(localNormal, true) - globalOrigin;
-        o_localNormal = globalNormal.getNormalized();
-        o_color = baseColor;*/
         return true;
     } else {
         // In the disk
@@ -136,12 +115,22 @@ bool CylinderObject::testForIntersections(
         Vector3 globalNormal = geometricTransform.apply(localNormal, true) - globalOrigin;
         o_localNormal = globalNormal.getNormalized();
         o_color = baseColor;
-        //TODO: UV note in the sphere object
-        double x = validPointOfIntersection.x;
-        double y = validPointOfIntersection.y;
-        UVCoordinates.x = x;
-        UVCoordinates.y = y;
-
         return true; 
     };
+};
+// get UV coordinates from an intersection
+Vector3 CylinderObject::getUVCoordinates(const Vector3 &t_intersectionPoint) const {
+    if (closeEnoughLoose(fabs(t_intersectionPoint.z), 1.0))  return Vector3 {
+        t_intersectionPoint.x,
+        t_intersectionPoint.y,
+        0.0
+    };
+    else {
+        double x = t_intersectionPoint.x;
+        double y = t_intersectionPoint.y;
+        double z = t_intersectionPoint.z;
+        double u = atan2(y, x) / M_PI;
+        double v = z;
+        return Vector3 { u, v, 0.0 };
+    }
 };

@@ -104,14 +104,14 @@ void GeometricTransform::setTransform(const Vector3 &translation, const Vector3 
 Matrix4 GeometricTransform::getForwardMatrix() { return forwardTransform; };
 Matrix4 GeometricTransform::getBackwardMatrix() { return backwardTransform; };
 
-qbRT::Ray GeometricTransform::apply (const qbRT::Ray &inputRay, bool directionFlag) {
+qbRT::Ray GeometricTransform::apply (const qbRT::Ray &inputRay, bool directionFlag) const {
     qbRT::Ray outputRay;
     outputRay.aVector = apply(inputRay.aVector, directionFlag);
     outputRay.bVector = apply(inputRay.bVector, directionFlag);
     outputRay.labVector = outputRay.bVector - outputRay.aVector;
     return outputRay;
 }
-Vector3 GeometricTransform::apply (const Vector3 &inputVector, bool directionFlag) {
+Vector3 GeometricTransform::apply (const Vector3 &inputVector, bool directionFlag) const {
     if (directionFlag) return forwardTransform * inputVector;
     else return backwardTransform * inputVector;
 }
