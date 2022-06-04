@@ -2,8 +2,8 @@
 #include "Vector3.hpp"
 Vector3::Vector3() {};
 Vector3::Vector3(double t_x, double t_y, double t_z): x(t_x), y(t_y), z(t_z) {}
-double Vector3::getMagnitude() { return sqrt(x*x + y*y + z*z); };
-Vector3 Vector3::getNormalized() {
+double Vector3::getMagnitude() const { return sqrt(x*x + y*y + z*z); };
+Vector3 Vector3::getNormalized() const {
     double mag = getMagnitude();
     if (mag == 0) return Vector3(0, 0, 0);
     double xOut = x == 0 ? x : x/mag;
@@ -21,17 +21,33 @@ void Vector3::normalize() {
 Vector3 Vector3::operator+ (const Vector3 &rhs) const { return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);};
 
 
-Vector3 Vector3::operator+= (const double &rhs) { return Vector3(x + rhs, y + rhs, z + rhs);  };
+Vector3 Vector3::operator+= (const double &rhs) {
+    x += rhs;
+    y += rhs;
+    z += rhs;
+    return *this;
+};
 Vector3 operator+ (const Vector3 &lhs, const double &rhs) { return Vector3(lhs) += rhs; };
 Vector3 operator+ (const double &lhs, const Vector3 &rhs) { return Vector3(rhs) += lhs; };
 
 
-Vector3 Vector3::operator-= (const double &rhs) { return Vector3(x - rhs, y - rhs, z - rhs);  };
+Vector3 Vector3::operator-= (const double &rhs) { 
+    x -= rhs;
+    y -= rhs;
+    z -= rhs;
+    return *this;
+};
 Vector3 operator- (const Vector3 &lhs, const double &rhs) { return Vector3(lhs) -= rhs; };
 Vector3 operator- (const double &lhs, const Vector3 &rhs) { return Vector3(rhs) -= lhs; };
-
 Vector3 Vector3::operator- (const Vector3 &rhs) const { return Vector3(x - rhs.x, y - rhs.y, z - rhs.z);};
-Vector3 Vector3::operator*= (const double &rhs) { return Vector3(x * rhs, y * rhs, z * rhs);  }
+
+
+Vector3 Vector3::operator*= (const double &rhs) { 
+    x *= rhs;
+    y *= rhs;
+    z *= rhs;
+    return *this;
+}
 Vector3 operator* (const Vector3 &lhs, const double &rhs) { return Vector3(lhs) *= rhs; };
 Vector3 operator* (const double &lhs, const Vector3 &rhs) { return Vector3(rhs) *= lhs; };
 Vector3 Vector3::operator*= (const Matrix4 &rhs) {

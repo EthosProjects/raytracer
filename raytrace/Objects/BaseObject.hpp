@@ -2,7 +2,7 @@
 #include "../Ray.hpp"
 #include "../GeometricTransform.hpp"
 //TODO: Define M_PI locally to avoid dependence on external libraries
-#include "../../SDL2/SDL.h"
+#include <SDL2/SDL.h>
 class BaseMaterial;
 class BaseObject {
 public:
@@ -12,7 +12,7 @@ public:
     virtual ~BaseObject();
 
     virtual bool testForIntersections(
-        const qbRT::Ray &castRay, 
+        const Ray &castRay, 
         Vector3 &intersectionPoint, 
         Vector3 &localNormal,
         Vector3 &localColor

@@ -101,11 +101,11 @@ void GeometricTransform::setTransform(const Vector3 &translation, const Vector3 
     backwardTransform = forwardTransform;
     backwardTransform.toInverse();
 };
-Matrix4 GeometricTransform::getForwardMatrix() { return forwardTransform; };
-Matrix4 GeometricTransform::getBackwardMatrix() { return backwardTransform; };
+Matrix4 GeometricTransform::getForwardMatrix() const { return forwardTransform; };
+Matrix4 GeometricTransform::getBackwardMatrix() const { return backwardTransform; };
 
-qbRT::Ray GeometricTransform::apply (const qbRT::Ray &inputRay, bool directionFlag) const {
-    qbRT::Ray outputRay;
+Ray GeometricTransform::apply (const Ray &inputRay, bool directionFlag) const {
+    Ray outputRay;
     outputRay.aVector = apply(inputRay.aVector, directionFlag);
     outputRay.bVector = apply(inputRay.bVector, directionFlag);
     outputRay.labVector = outputRay.bVector - outputRay.aVector;

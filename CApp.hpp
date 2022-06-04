@@ -1,5 +1,5 @@
 #pragma once
-#include "SDL2/SDL.h"
+#include <SDL2/SDL.h>
 #include "raytrace/qbImage.hpp"
 #include "raytrace/Scene.hpp"
 class CApp {
@@ -12,7 +12,7 @@ public:
 	void OnRender();
 	void OnExit();
 private:
-    qbRT::Scene m_scene;
+    Scene m_scene;
     qbImage m_qbImage;
 	// SDL2 stuff
 	bool isRunning;

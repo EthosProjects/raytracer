@@ -10,7 +10,7 @@ CApp::CApp() {
 
 bool CApp::OnInit() {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0) return false;
-    int width = 736;
+    int width = 640;
     int height = width * 9 / 16;
 
     // TODO: begin marking various TODOs with numbers for easy reference

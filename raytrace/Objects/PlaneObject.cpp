@@ -5,12 +5,12 @@ PlaneObject::PlaneObject () {
 
 };
 bool PlaneObject::testForIntersections(
-    const qbRT::Ray &castRay, 
+    const Ray &castRay, 
     Vector3 &intersectionPoint, 
     Vector3 &localNormal,
     Vector3 &localColor
 ) const {
-    qbRT::Ray backRay = geometricTransform.apply(castRay, false);
+    Ray backRay = geometricTransform.apply(castRay, false);
 	// Compute the values of a, b and c.
 	Vector3 vhat = backRay.labVector;
 	vhat.normalize();

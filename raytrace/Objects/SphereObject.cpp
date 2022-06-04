@@ -5,12 +5,12 @@ SphereObject::~SphereObject() {
     
 };
 bool SphereObject::testForIntersections(
-    const qbRT::Ray &castRay, 
+    const Ray &castRay, 
     Vector3 &intersectionPoint, 
     Vector3 &localNormal,
     Vector3 &localColor
 ) const {
-    qbRT::Ray backRay = geometricTransform.apply(castRay, false);
+    Ray backRay = geometricTransform.apply(castRay, false);
 	// Compute the values of a, b and c.
 	Vector3 vhat = backRay.labVector;
 	vhat.normalize();
@@ -36,20 +36,16 @@ bool SphereObject::testForIntersections(
     
     /* If either t1 or t2 are negative, then at least part of the object is
         behind the camera and so we will ignore it. */
-    if ((t1 < 0.0) || (t2 < 0.0)) return false;
+    if ((t1 < 0.0) && (t2 < 0.0)) return false;
     // Determine which point of intersection was closest to the camera.
     if (t1 < t2) poi = backRay.aVector + (vhat * t1);
     else poi = backRay.aVector + (vhat * t2);
     intersectionPoint = geometricTransform.apply(poi, true);
     // Compute local normal (Easy for a sphere at the origin!)
     Vector3 objectOrigin{ 0.0, 0.0, 0.0 };
-    
-//        std::cout << geometricTransform.getForwardMatrix() << std::endl;
     Vector3 transformedObjectOrigin = geometricTransform.apply(objectOrigin, true);
-
     localNormal = intersectionPoint - transformedObjectOrigin;
     localNormal.normalize();
-
     // Return color
     localColor = baseColor;
     return true;

@@ -4,12 +4,12 @@
 //TODO: DONT COPY BAD CODE YOU FUCKING MORON. WHY DID YOU COPY THIS SHIT INSTEAD OF REFACTORING FIRST???
 //THIS IS WHY NO ONE FUCKING LIKES YOU
 bool ConeObject::testForIntersections(
-    const qbRT::Ray &t_ray, 
+    const Ray &t_ray, 
     Vector3 &o_intersectionPoint, 
     Vector3 &o_localNormal,
     Vector3 &o_color
 ) const {
-    qbRT::Ray backRay = geometricTransform.apply(t_ray, false);
+    Ray backRay = geometricTransform.apply(t_ray, false);
     // Copy the lab ray's lab vector and normalize
 	Vector3 vhat = backRay.labVector;
 	vhat.normalize();
@@ -106,7 +106,7 @@ bool ConeObject::testForIntersections(
         Vector3 localNormal {
             0.0,
             0.0,
-            0.0 + validPointOfIntersection.z
+            1.0
         };
         Vector3 globalOrigin = geometricTransform.apply(localOrigin, true);
         Vector3 normal = geometricTransform.apply(localNormal, true) - globalOrigin;

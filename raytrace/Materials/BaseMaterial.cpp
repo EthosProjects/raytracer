@@ -4,10 +4,10 @@
 Vector3 BaseMaterial::computeColor(
     const std::vector<BaseObject*> &t_objectList,
     const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* t_closestObject,
+    BaseObject* &t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay
+    const Ray &t_cameraRay
 ) {
     return Vector3();
 
@@ -15,10 +15,9 @@ Vector3 BaseMaterial::computeColor(
 Vector3 BaseMaterial::computeDiffuseColor(
     const std::vector<BaseObject*> &t_objectList,
     const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* t_closestObject,
+    BaseObject* &t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay,
     const Vector3 &t_localColor
 ) {
     double red = 0.0;
@@ -52,16 +51,16 @@ Vector3 BaseMaterial::computeDiffuseColor(
 Vector3 BaseMaterial::computeReflectionColor(
     const std::vector<BaseObject*> &t_objectList,
     const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* t_closestObject,
+    BaseObject* &t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_incidentRay
+    const Ray &t_incidentRay
 ) {
     Vector3 reflectionColor;
     Vector3 d = t_incidentRay.labVector;
     Vector3 reflectionVector = d - (2.0 * Vector3::dot(d, t_closestLocalNormal) * t_closestLocalNormal);
     //Construct the reflection ray
-    qbRT::Ray reflectionRay { t_closestIntersectionPoint, t_closestIntersectionPoint + reflectionVector};
+    Ray reflectionRay { t_closestIntersectionPoint, t_closestIntersectionPoint + reflectionVector};
     //Cast ray into scene
     //TODO: duplicate of inner part of scene file. 
     //I could make this simpler by creating an "intersection" class
@@ -74,7 +73,6 @@ Vector3 BaseMaterial::computeReflectionColor(
     bool intersectionFound = castRay (
         reflectionRay,
         t_objectList,
-        t_lightList,
         t_closestObject,
         closestObject,
         closestIntersectionPoint,
@@ -84,8 +82,8 @@ Vector3 BaseMaterial::computeReflectionColor(
     //ENDBLOCK
     // compute illumination of closest object
     Vector3 materialColor;
-    if (intersectionFound && reflectionCount < maxReflectionCount) {
-        reflectionCount++;
+    if (intersectionFound && currentReflectionRay < maxReflectionRays) {
+        currentReflectionRay++;
         if (closestObject->hasMaterial()) {
             // Using material
             materialColor = closestObject->p_material->computeColor(
@@ -103,7 +101,6 @@ Vector3 BaseMaterial::computeReflectionColor(
                 closestObject,
                 closestIntersectionPoint,
                 closestLocalNormal,
-                reflectionRay,
                 closestObject->baseColor
             );
         }
@@ -116,19 +113,18 @@ Vector3 BaseMaterial::computeReflectionColor(
 // Proposal: I could possibly make cast ray a function of ray rather than doing this. Making it 
 // a function of ray would make logical sense. I could call it using Ray::Cast(...)
 bool BaseMaterial::castRay(
-    const qbRT::Ray t_ray,
+    const Ray &t_ray,
     const std::vector<BaseObject*> &t_objectList,
-    const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* &t_object,
+    BaseObject* &t_object,
     BaseObject* &o_closestObject,
     Vector3 &o_closestIntersectionPoint,
     Vector3 &o_closestLocalNormal,
     Vector3 &o_closestLocalColor
 ) {
-    double minimumDistance = 1e6;
+    double minimumDistance = 1e100;
     bool intersectionFound = false;
     for (auto currentObject: t_objectList) {
-        if (currentObject == t_object) continue;;
+        if (currentObject == t_object) continue;
         Vector3 intersectionPoint;
         Vector3 localNormal;
         Vector3 localColor;
@@ -147,11 +143,25 @@ bool BaseMaterial::castRay(
             o_closestIntersectionPoint = intersectionPoint;
             o_closestLocalNormal = localNormal;
             o_closestLocalColor = localColor;
+        } else if (o_closestObject == nullptr) {
+            continue;
+            std::cout << t_object->geometricTransform.getForwardMatrix() << std::endl << std::endl;
+            for (auto currentObject: t_objectList) {
+                std::cout << currentObject << std::endl << std::endl;
+            }
+
+            Vector3 between = (intersectionPoint - t_ray.aVector);
+            std::cout << currentObject->geometricTransform.getForwardMatrix() << std::endl;
+            std::cout << currentObject; 
+            std::cout << t_ray.aVector << std::endl << t_ray.bVector << std::endl;
+            std::cout << dist << std::endl << minimumDistance << std::endl;
+            std::cout << "\n\nFUCK";
+        
         }
     }
     return intersectionFound;
 };
-void BaseMaterial::addTexture(Texture::BaseTexture &t_texture) {
-    textureList.push_back(&t_texture);
+void BaseMaterial::setTexture(Texture::BaseTexture *t_texture) {
+    textureList.push_back(t_texture);
     hasTexture = true;
 }

@@ -4,11 +4,14 @@
 Vector3 SimpleRefractiveMaterial::computeColor (
     const std::vector<BaseObject*> &t_objectList,
     const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* t_closestObject,
+    BaseObject* &t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay
+    const Ray &t_cameraRay
 ) {
+    //if (castat == 1) std::cout << "yeah\n";
+    if (castat == 1) return Vector3 {};
+    castat = 1;
     // Define initial material colors
     Vector3 materialColor;
     Vector3 reflectionColor;
@@ -26,18 +29,19 @@ Vector3 SimpleRefractiveMaterial::computeColor (
             t_closestObject,
             t_closestIntersectionPoint,
             t_closestLocalNormal,
-            t_cameraRay,
             color
         );
     } else {
-        Vector4 color4 = textureList.at(0)->getColor(t_closestObject->getUVCoordinates(t_closestIntersectionPoint));
+        Vector4 color4 = textureList.at(0)->getColor(
+            t_closestObject->getUVCoordinates(
+                t_closestObject->geometricTransform.apply(t_closestIntersectionPoint, false)
+            ));
         diffuseColor = computeDiffuseColor(
             t_objectList,
             t_lightList,
             t_closestObject,
             t_closestIntersectionPoint,
             t_closestLocalNormal,
-            t_cameraRay,
             Vector3 { color4.x, color4.y, color4.z }
         );
     }
@@ -83,7 +87,7 @@ Vector3 SimpleRefractiveMaterial::computeSpecularColor (
     const std::vector<BaseLight*> &t_lightList,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay
+    const Ray &t_cameraRay
 ) {
     Vector3 specularColor;
     double red = 0.0;
@@ -97,7 +101,7 @@ Vector3 SimpleRefractiveMaterial::computeSpecularColor (
         //Compute a start point
         Vector3 startPoint = t_closestIntersectionPoint + 0.0001 * lightDirection;
         //Construct a ray from the point of intersection+
-        qbRT::Ray lightRay { startPoint, startPoint + lightDirection };
+        Ray lightRay { startPoint, startPoint + lightDirection };
         //Loop through all objects in scene
        
        //TODO: Notice that this function is the same as the shadow function. I'm just making sure no object obstructs the thing
@@ -146,27 +150,122 @@ Vector3 SimpleRefractiveMaterial::computeSpecularColor (
 Vector3 SimpleRefractiveMaterial::computeTranslucencyColor (
     const std::vector<BaseObject*> &t_objectList,
     const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* t_closestObject,
+    BaseObject* &t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_incidentRay
+    const Ray &t_incidentRay
 ) {
+    BaseObject* closestObject { nullptr };
+    Vector3 closestIntersectionPoint;
+    Vector3 closestLocalNormal;
+    Vector3 closestColor;
+
+    
+    Vector3 vhat = t_incidentRay.labVector.getNormalized();
+    Vector3 temporaryNormal = t_closestLocalNormal;
+    double r = 1.0/refractiveIndex;
+    double c = -Vector3::dot(temporaryNormal, vhat);
+    if (c < 0.0) {
+        temporaryNormal *= -1;
+        c = -Vector3::dot(temporaryNormal, vhat);
+    }
+    Vector3 refractedVector = r * vhat + (r * c - sqrtf(1.0 - (r * r) * (1 - c * c))) * temporaryNormal;
+    Ray refractedRay = { 
+        t_closestIntersectionPoint + refractedVector * 0.1, 
+        t_closestIntersectionPoint + refractedVector
+    };
+    Vector3 newIntersectionPoint;
+    Vector3 newLocalNormal;
+    Vector3 newColor;
+    bool test = t_closestObject->testForIntersections(
+        refractedRay,
+        newIntersectionPoint,
+        newLocalNormal,
+        newColor
+    );
+    bool intersectionFound = false;
+    Ray finalRay;
+    if (test) {
+        // Compute the refracted vector.
+        Vector3 p2 = refractedRay.labVector;
+        p2.normalize();
+        Vector3 tempNormal2 = newLocalNormal;
+        double r2 = refractiveIndex;
+        double c2 = -Vector3::dot(tempNormal2, p2);
+		if (c2 < 0.0) {
+			tempNormal2 = tempNormal2 * -1.0;
+            c2 = -Vector3::dot(tempNormal2, p2);
+		}
+        Vector3 refractedVector2 = r2*p2 + (r2*c2 - sqrtf(1.0-pow(r2,2.0) * (1.0-pow(c2,2.0)))) * tempNormal2;
+		//Vector3 refractedVector2 = r * vhat + (r * c - sqrtf(1.0 - (r * r) * (1 - c * c))) * newLocalNormal;
+        Ray refractedRay2 = {
+            newIntersectionPoint + refractedVector2 * 0.01, 
+            newIntersectionPoint + refractedVector2
+        };
+        intersectionFound = castRay(
+            refractedRay2,
+            t_objectList,
+            t_closestObject,
+            closestObject,
+            closestIntersectionPoint,
+            closestLocalNormal,
+            closestColor
+        );
+        finalRay = refractedRay2;
+    } else {
+        intersectionFound = castRay(
+            refractedRay,
+            t_objectList,
+            t_closestObject,
+            closestObject,
+            closestIntersectionPoint,
+            closestLocalNormal,
+            closestColor
+        );
+        finalRay = refractedRay;
+    }
+    // Color 
+    if (intersectionFound) {
+        if (closestObject->hasMaterial()) {
+            // Using material
+            return closestObject->p_material->computeColor(
+                t_objectList,
+                t_lightList,
+                closestObject,
+                closestIntersectionPoint,
+                closestLocalNormal,
+                finalRay
+            );
+        
+        } else {
+            return computeDiffuseColor(
+                t_objectList,
+                t_lightList,
+                closestObject,
+                closestIntersectionPoint,
+                closestLocalNormal,
+                closestObject->baseColor
+            );
+        }
+    }
+    return Vector3 {};
+/*
     Vector3 translucencyColor;
     Vector3 p = t_incidentRay.labVector;
     p.normalize();
     Vector3 temporaryNormal = t_closestLocalNormal;
-    double r = 1.0/refractiveIndex;
-    double c = Vector3::dot(temporaryNormal, p);
+    double r = 1.0/(refractiveIndex);
+    double c = -Vector3::dot(temporaryNormal, p);
     if (c < 0.0) {
         temporaryNormal *= -1;
         c = -Vector3::dot(temporaryNormal, p);
     }
     Vector3 refractedVector = r * p + (r * c - sqrtf(1.0 - (r * r) * (1 - c * c))) * temporaryNormal;
-    qbRT::Ray refractedRay { 
+    Ray refractedRay { 
         t_closestIntersectionPoint + refractedVector * 0.001, 
         refractedVector
     };
-    BaseObject* closestObject;
+    BaseObject* closestObject { nullptr };
     Vector3 closestIntersectionPoint;
     Vector3 closestLocalNormal;
     Vector3 closestColor;
@@ -180,19 +279,19 @@ Vector3 SimpleRefractiveMaterial::computeTranslucencyColor (
         newColor
     );
     bool intersectionFound { false };
-    qbRT::Ray finalRay;
+    Ray finalRay;
     if (test) {
         Vector3 p2 = refractedRay.labVector;
         p2.normalize();
         Vector3 temporaryNormal2 = newLocalNormal;
         double r2 = refractiveIndex;
-        double c2 = Vector3::dot(temporaryNormal2, p2);
+        double c2 = -Vector3::dot(temporaryNormal2, p2);
         if (c2 < 0.0) {
             temporaryNormal2 *= -1;
             c2 = -Vector3::dot(temporaryNormal2, p2);
-        }
+        };
         Vector3 refractedVector2 = r2 * p2 + (r2 * c2 - sqrtf(1.0 - (r2 * r2) * (1 - c2 * c2))) * temporaryNormal;
-        qbRT::Ray refractedRay2  {
+        Ray refractedRay2  {
             newIntersectionPoint + refractedVector2 * 0.001,
             refractedVector2
         };
@@ -220,6 +319,8 @@ Vector3 SimpleRefractiveMaterial::computeTranslucencyColor (
         );
         finalRay = refractedRay;
     }
+    
+   
     Vector3 materialColor;
     if (intersectionFound) {
         if (closestObject->hasMaterial()) {
@@ -230,8 +331,9 @@ Vector3 SimpleRefractiveMaterial::computeTranslucencyColor (
                 closestObject,
                 closestIntersectionPoint,
                 closestLocalNormal,
-                refractedRay
+                finalRay
             );
+        
         } else {
             materialColor = computeDiffuseColor(
                 t_objectList,
@@ -239,10 +341,10 @@ Vector3 SimpleRefractiveMaterial::computeTranslucencyColor (
                 closestObject,
                 closestIntersectionPoint,
                 closestLocalNormal,
-                refractedRay,
+                finalRay,
                 closestObject->baseColor
             );
         }
     }
-    return materialColor;
+    return materialColor;*/
 }

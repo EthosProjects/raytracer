@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "../SDL2/SDL.h"
+#include <SDL2/SDL.h>
 class qbImage {
 public:
     qbImage();

@@ -2,12 +2,12 @@
 #include "CylinderObject.hpp"
 #include <array>
 bool CylinderObject::testForIntersections(
-    const qbRT::Ray &t_ray, 
+    const Ray &t_ray, 
     Vector3 &o_intersectionPoint, 
     Vector3 &o_localNormal,
     Vector3 &o_color
 ) const {
-    qbRT::Ray backRay = geometricTransform.apply(t_ray, false);
+    Ray backRay = geometricTransform.apply(t_ray, false);
     // Copy the lab ray's lab vector and normalize
 	Vector3 vhat = backRay.labVector;
 	vhat.normalize();

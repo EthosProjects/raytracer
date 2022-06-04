@@ -10,8 +10,8 @@ public:
     double z { 0.0 };
     Vector3();
     Vector3(double t_x, double t_y, double t_z);
-    double getMagnitude();
-    Vector3 getNormalized();
+    double getMagnitude() const;
+    Vector3 getNormalized() const;
     void normalize();
     Vector3 operator+ (const Vector3 &rhs) const;
     Vector3 operator- (const Vector3 &rhs) const;

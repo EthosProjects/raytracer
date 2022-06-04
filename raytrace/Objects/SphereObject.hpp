@@ -5,7 +5,7 @@ public:
     SphereObject();
     ~SphereObject();
     virtual bool testForIntersections(
-        const qbRT::Ray &castRay, 
+        const Ray &castRay, 
         Vector3 &intersectionPoint, 
         Vector3 &localNormal,
         Vector3 &localColor

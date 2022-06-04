@@ -13,9 +13,9 @@ public:
 
     void setTransform (const Vector3 &translation, const Vector3 &rotation, const Vector3 &scale);
 
-    Matrix4 getForwardMatrix();
-    Matrix4 getBackwardMatrix();
-    qbRT::Ray apply (const qbRT::Ray &inputRay, bool directionFlag) const;
+    Matrix4 getForwardMatrix() const;
+    Matrix4 getBackwardMatrix() const;
+    Ray apply (const Ray &inputRay, bool directionFlag) const;
     Vector3 apply (const Vector3 &inputVector, bool directionFlag) const;
     friend GeometricTransform operator* (const GeometricTransform &lhs, const GeometricTransform &rhs);
     GeometricTransform operator=(const GeometricTransform &rhs);

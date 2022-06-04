@@ -1,159 +1,136 @@
 #pragma once
 #include "./Scene.hpp"
 #include "Materials/SimpleMaterial.hpp"
+#include "Materials/RefractiveMaterial.hpp"
 #include "Objects/CylinderObject.hpp"
 #include "Objects/ConeObject.hpp"
 #include "Textures/FlatTexture.hpp"
 #include "Textures/CheckerboardTexture.hpp"
-qbRT::Scene::Scene() {
+Scene::Scene() {
+	camera.setPositionVector  (Vector3{2.0, -5.0, -0.25});
+	camera.setLookAtVector     (Vector3{0.0, 0.0, 0.0});
+	camera.setUpVector	     (Vector3{0.0, 0.0, 1.0});
+	camera.setWidth            (1.00);
+	camera.setAspectRatio      (16.0 / 9.0);
+	camera.updateCameraGeometry();
     //Create some materials
     //TODO: Created pointer without freeing it
     //TODO: Create constructors to avoid this hellscape
     auto firstTexture = new Texture::CheckerboardTexture();
-    auto yellowDiffuse = new SimpleMaterial();
-    yellowDiffuse->color = Vector3 { 0.8, 0.8, 0.3 };
-    yellowDiffuse->reflectivity = 0.0;
-    yellowDiffuse->shininess = 5.0;
-    yellowDiffuse->addTexture(*firstTexture);
-    auto blueDiffuse = new SimpleMaterial();
-    blueDiffuse->color = Vector3 { 0.2, 0.2, 1.0 };
-    blueDiffuse->reflectivity = 0.0;
-    blueDiffuse->shininess = 5.0;
-    blueDiffuse->addTexture(*firstTexture);
-    //TODO allow classes to take advantage of the builder pattern
-    auto floorMaterial = new SimpleMaterial();
-    floorMaterial->color = Vector3 { 1.0, 1.0, 1.0 };
-    floorMaterial->reflectivity = 0.5;
-    floorMaterial->shininess = 0.0;
-    floorMaterial->addTexture(*firstTexture);
-    auto floor = new PlaneObject();
-    floor->setTransformMatrix (
-        GeometricTransform {
-            Vector3 { 0.0, 0.0, 1.0},
-            Vector3 { 0.0, 0.0, 0.0},
-            Vector3 { 16.0, 16.0, 1.0 }
-        }
-    );
-    floor->setMaterial(floorMaterial);
-    objectList.push_back(floor);
-    
-    auto cylinder = new CylinderObject();
-    cylinder->setTransformMatrix (
-        GeometricTransform {
-            Vector3 { -1.0, 0.0, 0.0},
-            Vector3 { -M_PI/4.0, 0.0, 0.0},
-            Vector3 { 0.5, 0.5, 1.0 }
-        }
-    );
-    cylinder->setMaterial(blueDiffuse);
-    objectList.push_back(cylinder);
-    auto cone1 = new ConeObject();
-    cone1->setTransformMatrix (
-        GeometricTransform {
-            Vector3 { 1.0, 0.0, 0.0},
-            Vector3 { M_PI/4.0, 0.0, 0.0},
-            Vector3 { 0.5, 0.5, 1.0 }
-        }
-    );
-    cone1->setMaterial(yellowDiffuse);
-    objectList.push_back(cone1);
-    auto sphere = new SphereObject();
-    sphere->setTransformMatrix (
-        GeometricTransform {
-            Vector3 { 0.0, 0.0, 0.0},
-            Vector3 { M_PI/4.0, 0.0, 0.0},
-            Vector3 { 1.0, 1.0, 1.0 }
-        }
-    );
-    sphere->setMaterial(yellowDiffuse);
-    objectList.push_back(sphere);
-    //std::cout << cylinder->geometricTransform.getForwardMatrix();
-    /*
-    auto testMaterial = new SimpleMaterial();
-    testMaterial->color = Vector3 { 0.25, 0.5, 0.8 };
-    testMaterial->reflectivity = 0.1;
-    testMaterial->shininess = 10.0;
-    auto testMaterial2 = new SimpleMaterial();
-    testMaterial2->color = Vector3 { 1.0, 0.5, 0.0 };
-    testMaterial2->reflectivity = 0.75;
-    testMaterial2->shininess = 10.0;
-    auto testMaterial3 = new SimpleMaterial();
-    testMaterial3->color = Vector3 { 1.0, 0.8, 0.0 };
-    testMaterial3->reflectivity = 0.25;
-    testMaterial3->shininess = 10.0;
-    auto floorMaterial = new SimpleMaterial();
-    floorMaterial->color = Vector3 { 1.0, 1.0, 1.0 };
-    floorMaterial->reflectivity = 0.5;
-    floorMaterial->shininess = 0.0;
-	*/
-    // Configure the camera.
-	camera.setPositionVector  (Vector3{0.0, -10.0, -2.0});
-	camera.setLookAtVector     (Vector3{0.0, 0.0, 0.0});
-	camera.setUpVector	     (Vector3{0.0, 0.0, 1.0});
-	camera.setWidth            (0.25);
-	camera.setAspectRatio      (16.0 / 9.0);
-	camera.updateCameraGeometry();
-    // Make objects
-    /*
-    objectList.push_back(new SphereObject());
-    objectList.push_back(new SphereObject());
-    objectList.push_back(new SphereObject());
-    // Create plane
-    objectList.push_back(new PlaneObject());
-    objectList.at(3)->baseColor = Vector3 { 0.5, 0.5, 0.5 };
-    GeometricTransform planeMatrix;
-    planeMatrix.setTransform(
-        Vector3 { 0.0, 0.0, 0.75},
+    auto floorTexture = new Texture::CheckerboardTexture();
+    floorTexture -> setTransform(
         Vector3 { 0.0, 0.0, 0.0},
-        Vector3 { 4.0, 4.0, 1.0 }
+        0.0,
+        Vector3{ 16.0, 16.0, 1.0} 
     );
-    objectList.at(3)->setTransformMatrix(planeMatrix);
-    // modify spheres
-    GeometricTransform testTransform1, testTransform2, testTransform3;
-    testTransform1.setTransform(
-        Vector3 { -1.5, 0.0, 0.0},
-        Vector3 { 0.0, 0.0, 0.0},
-        Vector3 { 0.5, 0.5, 0.5 }
-    );
-    testTransform2.setTransform(
-        Vector3 { 0.0, 0.0, 0.0 },
-        Vector3 { 0.0, 0.0, 0.0 },
-        Vector3 { 0.5, 0.5, 0.5 }
-    );
-    testTransform3.setTransform(
-        Vector3 { 1.5, 0.0, 0.0},
-        Vector3 { 0.0, 0.0, 0.0},
-        Vector3 { 0.5, 0.5, 0.5 }
-    );
-    objectList.at(0)->setTransformMatrix(testTransform1);
-    objectList.at(1)->setTransformMatrix(testTransform2);
-    objectList.at(2)->setTransformMatrix(testTransform3);
+    // **************************************************************************************
+	// Create some materials.
+	// **************************************************************************************
+	auto floorMaterial = new SimpleMaterial();
+	auto imageMaterial = new SimpleMaterial();
+	auto sphereMaterial = new SimpleMaterial();
+	auto sphereMaterial2 = new SimpleMaterial();
+	auto sphereMaterial3 = new SimpleMaterial();
+	auto glassMaterial = new SimpleRefractiveMaterial();
+// **************************************************************************************	
+	// Setup the materials.
+	// **************************************************************************************
+	floorMaterial -> color = Vector3{ 1.0, 1.0, 1.0 };
+	floorMaterial -> reflectivity = 0.25;
+	floorMaterial -> shininess = 0.0;
+	floorMaterial -> setTexture(floorTexture);
+	
+	imageMaterial -> color = Vector3 { 1.0, 0.125, 0.125 };
+	imageMaterial -> reflectivity = 0.0;
+	imageMaterial -> shininess = 0.0;
+	
+	sphereMaterial -> color = Vector3{ 1.0, 0.2, 0.2 };
+	sphereMaterial -> reflectivity = 0.8;
+	sphereMaterial -> shininess = 32.0;
+	
+	sphereMaterial2 -> color = Vector3{0.2, 1.0, 0.2};
+	sphereMaterial2 -> reflectivity = 0.8;
+	sphereMaterial2 -> shininess = 32.0;
+	
+	sphereMaterial3 -> color = Vector3{0.2, 0.2, 1.0};
+	sphereMaterial3 -> reflectivity = 0.8;
+	sphereMaterial3 -> shininess = 32.0;	
+	
+	glassMaterial -> color = Vector3{0.7, 0.7, 0.2};
+	glassMaterial -> reflectivity = 0.25;
+	glassMaterial -> shininess = 32.0;
+	glassMaterial -> transluncy = 0.75;
+	glassMaterial -> refractiveIndex = 1.333;	
+    // **************************************************************************************	
+	// Create and setup objects.
+	// **************************************************************************************
+	auto floor =  new PlaneObject();
+	floor -> setTransformMatrix(GeometricTransform {	Vector3{0.0, 0.0, 1.0},
+                                                Vector3{0.0, 0.0, 0.0},
+                                                Vector3{16.0, 16.0, 1.0} 
+    });
+	floor -> setMaterial(floorMaterial);
 
-    objectList.at(0)->baseColor = Vector3 { 0.25, 0.5, 0.8 };
-    objectList.at(1)->baseColor = Vector3 { 1.0, 0.5, 0.0 };
-    objectList.at(2)->baseColor = Vector3 { 1.0, 0.8, 0.0 };
-    //Assign materials
-    objectList.at(0)->setMaterial(testMaterial3);
-    objectList.at(1)->setMaterial(testMaterial);
-    objectList.at(2)->setMaterial(testMaterial2);
-    objectList.at(3)->setMaterial(floorMaterial);
-    */
-    // Make test light
+	// **************************************************************************************
+	auto imagePlane = new PlaneObject();
+	imagePlane -> setTransformMatrix(GeometricTransform {	Vector3{0.0, 5.0, -0.75},
+                                                    Vector3{-M_PI/2.0, 0.0, 0.0},
+                                                    Vector3{1.75, 1.75, 1.0}}	);
+	imagePlane -> setMaterial(imageMaterial);
+
+	// **************************************************************************************	
+	auto sphere = new SphereObject();
+	sphere -> setTransformMatrix(GeometricTransform	{	Vector3{-2.0, -2.0, 0.25},
+                                                    Vector3{0.0, 0.0, 0.0},
+                                                    Vector3{0.75, 0.75, 0.75}});
+	sphere -> setMaterial(sphereMaterial);
+	
+	// **************************************************************************************	
+	auto sphere2 =  new SphereObject();
+	sphere2 -> setTransformMatrix(GeometricTransform	{	Vector3{-2.0, -0.5, 0.25},
+                                                    Vector3{0.0, 0.0, 0.0},
+                                                    Vector3{0.75, 0.75, 0.75} });
+	sphere2 -> setMaterial(sphereMaterial2);
+	
+	// **************************************************************************************	
+	auto sphere3 = new SphereObject();
+	sphere3 -> setTransformMatrix(GeometricTransform	{	Vector3{-2.0, -1.25, -1.0},
+                                                    Vector3{0.0, 0.0, 0.0},
+                                                    Vector3{0.75, 0.75, 0.75}	});
+	sphere3 -> setMaterial(sphereMaterial3);		
+	
+	// **************************************************************************************	
+	auto sphere4 = new SphereObject();
+	sphere4 -> setTransformMatrix(GeometricTransform	{	Vector3{2.0, -1.25, 0.25},
+                                                    Vector3{0.0, 0.0, 0.0},
+                                                    Vector3{0.75, 0.75, 0.75} });
+	sphere4 -> setMaterial(glassMaterial);		
+
+	// **************************************************************************************
+	// Put the objects into the scene.	
+	// **************************************************************************************
+	objectList.push_back(floor);
+	objectList.push_back(imagePlane);
+	objectList.push_back(sphere);
+	objectList.push_back(sphere2);	
+	objectList.push_back(sphere3);	
+	objectList.push_back(sphere4);
+	
+	lightList.push_back(new PointLight());
+	lightList.at(0) -> positionVector = Vector3 {3.0, -10.0, -5.0};
+	lightList.at(0) -> color = Vector3 { 1.0, 1.0, 1.0 };
+	lightList.at(0) -> intensity = 4.0;
+	
+	lightList.push_back(new PointLight());
+	lightList.at(1) -> positionVector = Vector3 {0.0, -10.0, -5.0};
+	lightList.at(1) -> color = Vector3 {1.0, 1.0, 1.0};
+	lightList.at(1) -> intensity = 2.0;
     lightList.push_back(new PointLight());
-    lightList.at(0)->positionVector = Vector3(5.0, -10.0, -5.0);
-    lightList.at(0)->color = Vector3(0.0, 0.0, 1.0);
-    lightList.push_back(new PointLight());
-    lightList.at(1)->positionVector = Vector3(-5.0, -10.0, -5.0);
-    lightList.at(1)->color = Vector3(1.0, 0.0, 0.0);
-    lightList.push_back(new PointLight());
-    lightList.at(2)->positionVector = Vector3(0.0, -10.0, -5.0);
-    lightList.at(2)->color = Vector3(0.0, 1.0, 0.0);
-    
 };
-void qbRT::Scene::update() {
+void Scene::update() {
     //camera.positionVector.x += 0.001;
 }
-bool qbRT::Scene::render(qbImage &outputImage) {
+bool Scene::render(qbImage &outputImage) {
     int xSize = outputImage.getXSize();
     int ySize = outputImage.getYSize();
     double xFactor = 1.0 / (static_cast<double>(xSize) / 2.0);
@@ -163,7 +140,7 @@ bool qbRT::Scene::render(qbImage &outputImage) {
     for (int x = 0; x < xSize; x++) {
         if (x % 150 == 0) std::cout << "drawing row " << x + 1 << " of " << xSize << "\n";
         for (int y = 0; y < ySize; y++) {
-            qbRT::Ray cameraRay;
+            Ray cameraRay;
             double normX = (static_cast<double>(x) * xFactor) - 1.0;
             double normY = (static_cast<double>(y) * yFactor) - 1.0;
             camera.generateRay(normX, normY, cameraRay);
@@ -180,7 +157,8 @@ bool qbRT::Scene::render(qbImage &outputImage) {
             );
             //TODO All transformed vectors will be prefaced with local valid
             if (!intersectionFound) continue;
-            BaseMaterial::maxReflectionCount = 3;
+            BaseMaterial::maxReflectionRays = 3;
+            SimpleRefractiveMaterial::castat = 0;
             if (closestObject->hasMaterial()) {
                 Vector3 color = closestObject->p_material->computeColor(
                     objectList,
@@ -196,12 +174,12 @@ bool qbRT::Scene::render(qbImage &outputImage) {
                     lightList,
                     closestObject,
                     closestIntersectionPoint,
-                    closestLocalNormal, cameraRay,
+                    closestLocalNormal,
                     closestObject->baseColor
                 );
                 outputImage.setPixel(x, y, color.x, color.y, color.z);
             }
-            BaseMaterial::reflectionCount = 0;
+            BaseMaterial::currentReflectionRay = 0;
             /*
             double red = 0.0;
             double green = 0.0;
@@ -233,7 +211,7 @@ bool qbRT::Scene::render(qbImage &outputImage) {
     }
     return true;
 }
-bool qbRT::Scene::castRay(
+bool Scene::castRay(
     Ray t_ray, 
     BaseObject* &o_closestObject,
     Vector3 &o_closestIntersectionPoint,

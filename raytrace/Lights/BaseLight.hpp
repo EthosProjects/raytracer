@@ -1,16 +1,14 @@
 #pragma once
 #include "../Ray.hpp"
 #include "../Objects/BaseObject.hpp"
-#include <vector>
 class BaseLight {
 public:
-    BaseLight();
-    virtual ~BaseLight();
+    // Function to compute illumination contribution.
     virtual bool computeIllumination(
         const Vector3 &t_intersectionPoint, 
         const Vector3 &t_localNormal,
         const std::vector<BaseObject*> &t_objectList,
-        const BaseObject* t_currentObject,
+        BaseObject* &t_currentObject,
         Vector3 &t_color,
         double &t_intensity
     );

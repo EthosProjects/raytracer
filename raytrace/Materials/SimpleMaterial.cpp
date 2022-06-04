@@ -1,12 +1,13 @@
 #pragma once
 #include "SimpleMaterial.hpp"
+int checker = 0;
 Vector3 SimpleMaterial::computeColor (
     const std::vector<BaseObject*> &t_objectList,
     const std::vector<BaseLight*> &t_lightList,
-    const BaseObject* t_closestObject,
+    BaseObject* &t_closestObject,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay
+    const Ray &t_cameraRay
 ) {
     // Define initial material colors
     Vector3 materialColor;
@@ -24,7 +25,6 @@ Vector3 SimpleMaterial::computeColor (
             t_closestObject,
             t_closestIntersectionPoint,
             t_closestLocalNormal,
-            t_cameraRay,
             color
         );
     } else {
@@ -38,7 +38,6 @@ Vector3 SimpleMaterial::computeColor (
             t_closestObject,
             t_closestIntersectionPoint,
             t_closestLocalNormal,
-            t_cameraRay,
             Vector3 { color4.x, color4.y, color4.z }
         );
     }
@@ -71,7 +70,7 @@ Vector3 SimpleMaterial::computeSpecularColor (
     const std::vector<BaseLight*> &t_lightList,
     const Vector3 &t_closestIntersectionPoint,
     const Vector3 &t_closestLocalNormal, 
-    const qbRT::Ray t_cameraRay
+    const Ray t_cameraRay
 ) {
     Vector3 specularColor;
     double red = 0.0;
@@ -85,7 +84,7 @@ Vector3 SimpleMaterial::computeSpecularColor (
         //Compute a start point
         Vector3 startPoint = t_closestIntersectionPoint + 0.0001 * lightDirection;
         //Construct a ray from the point of intersection+
-        qbRT::Ray lightRay { startPoint, startPoint + lightDirection };
+        Ray lightRay { startPoint, startPoint + lightDirection };
         //Loop through all objects in scene
        
        //TODO: Notice that this function is the same as the shadow function. I'm just making sure no object obstructs the thing

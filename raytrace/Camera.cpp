@@ -1,6 +1,6 @@
 #pragma once
 #include "Camera.hpp"
-qbRT::Camera::Camera(): 
+Camera::Camera(): 
     positionVector(0.0, -10, 0.0),
     lookAtVector(0.0, 0.0, 0.0),
     upVector(0.0, 0.0, 1.0),
@@ -9,29 +9,29 @@ qbRT::Camera::Camera():
     aspectRatio(1.0) {};
 // Setters
 // Vector setters
-void qbRT::Camera::setPositionVector(const Vector3 &newPositionVector) { positionVector = newPositionVector; }
-void qbRT::Camera::setLookAtVector(const Vector3 &newLookAtVector) { lookAtVector = newLookAtVector; }
-void qbRT::Camera::setUpVector(const Vector3 &newUpVector) { upVector = newUpVector; }
+void Camera::setPositionVector(const Vector3 &newPositionVector) { positionVector = newPositionVector; }
+void Camera::setLookAtVector(const Vector3 &newLookAtVector) { lookAtVector = newLookAtVector; }
+void Camera::setUpVector(const Vector3 &newUpVector) { upVector = newUpVector; }
 // double setters
-void qbRT::Camera::setLength(double newLength) { length = newLength; }
-void qbRT::Camera::setWidth(double newWidth) { width = newWidth; }
-void qbRT::Camera::setAspectRatio(double newAspectRatio) { aspectRatio = newAspectRatio; }
+void Camera::setLength(double newLength) { length = newLength; }
+void Camera::setWidth(double newWidth) { width = newWidth; }
+void Camera::setAspectRatio(double newAspectRatio) { aspectRatio = newAspectRatio; }
 // Getters
 // Vector getters
-Vector3 qbRT::Camera::getPositionVector() { return positionVector; }
-Vector3 qbRT::Camera::getLookAtVector() { return lookAtVector; }
-Vector3 qbRT::Camera::getUpVector() { return upVector; }
+Vector3 Camera::getPositionVector() { return positionVector; }
+Vector3 Camera::getLookAtVector() { return lookAtVector; }
+Vector3 Camera::getUpVector() { return upVector; }
 // double getters
-double qbRT::Camera::getLength() { return length; }
-double qbRT::Camera::getWidth() { return width; }
-double qbRT::Camera::getAspectRatio(){ return aspectRatio; }
+double Camera::getLength() { return length; }
+double Camera::getWidth() { return width; }
+double Camera::getAspectRatio(){ return aspectRatio; }
 // Calculated getters
-Vector3 qbRT::Camera::getUVector() { return UVector; }
-Vector3 qbRT::Camera::getVVector() { return VVector; }
-Vector3 qbRT::Camera::getProjectionScreenCenterVector() { return projectionScreenCenterVector; }
+Vector3 Camera::getUVector() { return UVector; }
+Vector3 Camera::getVVector() { return VVector; }
+Vector3 Camera::getProjectionScreenCenterVector() { return projectionScreenCenterVector; }
 // Geoemtry calculator
 // Utility functions
-void qbRT::Camera::updateCameraGeometry() {
+void Camera::updateCameraGeometry() {
 	// First, compute the vector from the camera position to the LookAt position.
 	alignmentVector = lookAtVector - positionVector;
 	alignmentVector.normalize();
@@ -46,7 +46,7 @@ void qbRT::Camera::updateCameraGeometry() {
 	UVector = UVector * width;
 	VVector = VVector * (width / aspectRatio);
 }
-bool qbRT::Camera::generateRay(float projectionScreenX, float projectionScreenY, qbRT::Ray &cameraRay) {
+bool Camera::generateRay(float projectionScreenX, float projectionScreenY, Ray &cameraRay) {
 	// Compute the location of the screen point in world coordinates.
 	Vector3 screenWorldPart1 = projectionScreenCenterVector + (UVector * projectionScreenX);
 	Vector3 screenWorldCoordinate = screenWorldPart1 + (VVector * projectionScreenY);
@@ -61,7 +61,7 @@ bool qbRT::Camera::generateRay(float projectionScreenX, float projectionScreenY,
 /**
  * 
  *
-void qbRT::Camera::updateGeometry() {
+void Camera::updateGeometry() {
     //First compute the vector form the position to the lookAt vector
     alignmentVector = (lookAt - position).getNormalized();
     //Second compute the U and V vectors
@@ -73,7 +73,7 @@ void qbRT::Camera::updateGeometry() {
     U = U * horizontalSize;
     V = V * (horizontalSize/aspectRatio);
 };  
-bool qbRT::Camera::generateRay(float projectionScreenX, float projectionScreenY, qbRT::Ray &cameraRay) {
+bool Camera::generateRay(float projectionScreenX, float projectionScreenY, Ray &cameraRay) {
     Vector3 screenWorldPartial = screenCenter + (U * projectionScreenX);
     Vector3 screenWorldFinal = screenWorldPartial + (V * projectionScreenY);
     cameraRay.a = position;

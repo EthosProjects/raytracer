@@ -1,1 +1,1 @@
-cl *.cpp raytrace/*.cpp raytrace/line/*.cpp raytrace/Objects/*.cpp raytrace/Lights/*.cpp raytrace/Materials/*.cpp raytrace/Textures/*.cpp SDL2lib/SDL2.lib /EHsc -Femain.exe /O2 /std:c++17 /Gm /Zi
+cl *.cpp raytrace/*.cpp raytrace/line/*.cpp raytrace/Objects/*.cpp raytrace/Lights/*.cpp raytrace/Materials/*.cpp raytrace/Textures/*.cpp SDL2lib/SDL2.lib /EHsc -Femain.exe /O2 /std:c++17 /Gm /Zi /I includes
